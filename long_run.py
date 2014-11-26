@@ -4,17 +4,24 @@ import numpy as np
 from IPython import embed
 from pylab import *
 import cPickle
+from parallelization import *
 
 
-def do(dc, width, dendr_spike):
+def do((repetition_i,p)):
+
+	dc = p['dc']
+	width = p['width']
+	dendr_spike = p['d_s']
 
 	pres = np.arange(20,81,5)
 
 	res = {}
 
-	t_end = 10000.0
+	t_end = 100.0
 
 	for idx, pre_spike in enumerate(pres):
+
+		pre_spikes = np.arange(pre_spike,t_end,100.0)
 		my_s = {
 			'start': 0.0,
 			'end': t_end,
@@ -37,9 +44,12 @@ def do(dc, width, dendr_spike):
 		accum = run(my_s, fixed_spiker(post_spikes), d_s, Accumulator(save, my_s,interval=20))
 		res[pre_spike] = accum
 
-	cPickle.dump(res, open('long_term_stdp_dc_{0}_width_{1}_{2}.p'.format(dc,width,dendr_spike),'wb'))
+	cPickle.dump(res, open('{0}.p'.format(p['ident']),'wb'))
 
-for dc in [0.0,10.0,20.0,40.0]:
-	for width in [0.5,0.2,0.1]:
-		for d_s in ['backprop','dendr_det']:
-			do(dc,width,d_s)
+reps = 1
+dcs = [0.0,10.0,20.0,40.0]
+widths = [0.5,0.2,0.1]
+d_s = ['backprop','dendr_det']
+params = constructParams(['dc','width','d_s'],[dcs,widths,d_s],'long_term_stdp')
+print "running {0} simulations".format(reps*len(params))
+run_tasks(reps,params,do,withmp=True)
