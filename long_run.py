@@ -8,7 +8,7 @@ import cPickle
 
 def do(dc, width, dendr_spike):
 
-	pres = np.arange(0,101,2)
+	pres = np.arange(20,81,5)
 
 	res = {}
 
@@ -23,9 +23,9 @@ def do(dc, width, dendr_spike):
 			'I_ext': periodic_current(first=pre_spike,interval=100,width=width,dcs=[dc,0.0])
 			}
 
-		save = ['y','weight','dendr_spike','spike']
+		save = ['weight']
 
-		post_spikes = arange(50,100.0,t_end)
+		post_spikes = arange(50.0,t_end,100.0)
 
 		if dendr_spike == 'backprop':
 			d_s = inst_backprop
@@ -34,7 +34,7 @@ def do(dc, width, dendr_spike):
 		else:
 			raise Exception()
 
-		accum = run(my_s, fixed_spiker(post_spikes), d_s, Accumulator(save, my_s))
+		accum = run(my_s, fixed_spiker(post_spikes), d_s, Accumulator(save, my_s,interval=20))
 		res[pre_spike] = accum
 
 	cPickle.dump(res, open('long_term_stdp_dc_{0}_width_{1}_{2}.p'.format(dc,width,dendr_spike),'wb'))

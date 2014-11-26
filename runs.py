@@ -1,5 +1,5 @@
 from simulation import run
-from util import fixed_spiker, inst_backprop, Accumulator, dendr_spike_det
+from util import fixed_spiker, inst_backprop, Accumulator, dendr_spike_det, step_current
 import numpy as np
 from IPython import embed
 from pylab import *
@@ -25,13 +25,14 @@ def robert_plot():
 				'end': 100.0,
 				'dt': 0.05,
 				'pre_spikes': np.array([pre_spike]),
-				'I_ext': np.array([[0.0,0.0],[50-width/2,dc],[50+width/2,0.0]])
+				'I_ext': step_current(np.array([[0.0,0.0],[50-width/2,dc],[50+width/2,0.0]]))
 				}
 
-			save = ['y','weight','dendr_spike']
+			save = ['y','weight']
 
 			accum = run(my_s, fixed_spiker(np.array([50.0])), dendr_spike_det(), Accumulator(save, my_s))
 
+			embed()
 			weight = accum.res['weight']
 			d_ws[idx] = (weight[-1] - weight[0])/weight[0]
 

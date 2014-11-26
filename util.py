@@ -1,6 +1,7 @@
 import json
 from model import phi, phi_prime
 import numpy as np
+from IPython import embed
 
 def get_default(params):
     return json.load(open('default_{0}.json'.format(params),'r'))
@@ -29,6 +30,7 @@ def periodic_current(first,interval,width,dcs):
             return dcs[0]
         else:
             return dcs[1]
+    return I_ext
 
 class Accumulator():
 
@@ -40,7 +42,7 @@ class Accumulator():
 
     def __init__(self, keys, sim, interval=1):
         self.keys = keys
-        self.i = 0
+        self.i = interval
         self.j = 0
         self.res = {}
         self.interval = interval
@@ -50,13 +52,12 @@ class Accumulator():
             self.res[key] = np.zeros((eff_steps,self._get_size(key)))
 
     def add(self, curr_t, **vals):
-        self.i += 1
-        if self.i == self.interval:
+        #embed()
+        if np.abs(self.i-self.interval) < 1e-10:
             for key in self.keys:
                 self.res[key][self.j,:] = np.atleast_2d(vals[key])
 
             self.t[self.j] = curr_t
             self.j += 1
             self.i = 0
-        else:
-            self.i += 1
+        self.i += 1
