@@ -44,7 +44,8 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
             'dendr_pred':0.0,
             'h':0.0,
             'dendr_spike':0.0,
-            'weight':weight}
+            'weight':weight,
+            'I_ext':0.0}
 
     accumulator.add(curr_t, **vals)
 
@@ -90,7 +91,8 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
                 'dendr_pred':dendr_pred,
                 'h':h,
                 'dendr_spike':float(dendr_spike),
-                'weight':weight}
+                'weight':weight,
+                'I_ext':I_ext(curr_t - dt)}}
 
         accumulator.add(curr_t, **vals)
 

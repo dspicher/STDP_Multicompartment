@@ -17,7 +17,7 @@ def do((repetition_i,p)):
 
 	res = {}
 
-	t_end = 100.0
+	t_end = 10000.0
 
 	for idx, pre_spike in enumerate(pres):
 
@@ -26,11 +26,11 @@ def do((repetition_i,p)):
 			'start': 0.0,
 			'end': t_end,
 			'dt': 0.05,
-			'pre_spikes': np.array([pre_spike]),
-			'I_ext': periodic_current(first=pre_spike,interval=100,width=width,dcs=[dc,0.0])
+			'pre_spikes': pre_spikes,
+			'I_ext': periodic_current(first=50.0,interval=100,width=width,dcs=[dc,0.0])
 			}
 
-		save = ['weight']
+		save = ['weight','y','I_ext']
 
 		post_spikes = arange(50.0,t_end,100.0)
 
@@ -41,9 +41,10 @@ def do((repetition_i,p)):
 		else:
 			raise Exception()
 
+
 		accum = run(my_s, fixed_spiker(post_spikes), d_s, Accumulator(save, my_s,interval=20))
 		res[pre_spike] = accum
-
+		
 	cPickle.dump(res, open('{0}.p'.format(p['ident']),'wb'))
 
 reps = 1
