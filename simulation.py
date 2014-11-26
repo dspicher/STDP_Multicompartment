@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import integrate, random
 from IPython import embed
-from util import get_default
+from util import get_default, step_current
 from model import get_spike_currents, phi, phi_prime, urb_senn_rhs
 
 def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, learn=None, **kwargs):
@@ -17,9 +17,7 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
     if learn is None:
         learn = get_default("learn")
 
-    I_ext_steps = sim.get('I_ext', np.array([[sim['start'],0.0]]))
-    def I_ext(t):
-        return I_ext_steps[I_ext_steps[:,0]<=t,1][-1]
+    I_ext = sim.get('I_ext', step_current(np.array([[sim['start'],0.0]])))
 
     pre_spikes = sim.get('pre_spikes',np.array([]))
 

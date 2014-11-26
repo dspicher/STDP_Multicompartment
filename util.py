@@ -20,6 +20,15 @@ def inst_backprop(curr_t, last_spike, **kwargs):
 def dendr_spike_det(thresh=1.0, tau=4.0):
     return lambda y, curr_t, last_spike_dendr, **kwargs: y[1] > thresh and (curr_t-last_spike_dendr > tau)
 
+def step_current(steps):
+    return lambda t: steps[steps[:,0]<=t,1][-1]
+
+def periodic_current(first,interval,width,dcs):
+    def I_ext(t):
+        if (t-first)%interval <= width/2:
+            return dcs[0]
+        else:
+            return dcs[1]
 
 class Accumulator():
 
