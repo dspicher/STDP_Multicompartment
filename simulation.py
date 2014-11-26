@@ -92,7 +92,7 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
                 'h':h,
                 'dendr_spike':float(dendr_spike),
                 'weight':weight,
-                'I_ext':I_ext(curr_t - dt)}}
+                'I_ext':I_ext(curr_t - dt)}
 
         accumulator.add(curr_t, **vals)
 
