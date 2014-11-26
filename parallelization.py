@@ -14,7 +14,7 @@ def run_tasks(repetitions, params, runTask, withmp=True):
     all_reps_params = ((rep_i, param)
                             for param,rep_i in it.product(params, xrange(repetitions)))
     if withmp:
-        pool = mp.Pool(mp.cpu_count()/2)
+        pool = mp.Pool(mp.cpu_count)
         pool.map(runTask, all_reps_params)
     else:
         for pair in all_reps_params:
