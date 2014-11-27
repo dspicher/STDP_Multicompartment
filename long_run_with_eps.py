@@ -21,7 +21,7 @@ def do((repetition_i,p)):
 
 	for idx, pre_spike in enumerate(pres):
 
-		print pre_spikes
+		print pre_spike
 
 		pre_spikes = np.arange(pre_spike,t_end,100.0)
 		my_s = {
@@ -32,17 +32,17 @@ def do((repetition_i,p)):
 			'I_ext': lambda t: 0.0
 			}
 
-		vals = {'g':g_E_D,
-				'syn_pots_sum':syn_pots_sum,
-				'y':y,
-				'spike':float(does_spike),
-				'V_w_star':V_w_star,
-				'dendr_pred':dendr_pred,
-				'h':h,
-				'dendr_spike':float(dendr_spike),
-				'weight':weight,
-				'weight_update':weight_update,
-				'I_ext':I_ext(curr_t - dt)}
+		vals = {'g':0,
+				'syn_pots_sum':0,
+				'y':0,
+				'spike':0,
+				'V_w_star':0,
+				'dendr_pred':0,
+				'h':0,
+				'dendr_spike':0,
+				'weight':0,
+				'weight_update':0,
+				'I_ext':0}
 
 		save = vals.keys()
 
