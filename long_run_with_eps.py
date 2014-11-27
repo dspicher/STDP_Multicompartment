@@ -13,10 +13,11 @@ def do((repetition_i,p)):
 	width = p['width']
 	dendr_spike = p['d_s']
 
-	pres = np.arange(20,81,5)
+	pres = np.arange(20,81,10)
 
-	learn = get_default("learn")
+	learn = {}
 	learn['eps'] = p['eps']
+	learn['eta'] = p['eta']
 
 	res = {}
 
@@ -44,9 +45,8 @@ def do((repetition_i,p)):
 	cPickle.dump(res, open('{0}.p'.format(p['ident']),'wb'))
 
 reps = 1
-dcs = [0.0,20.0]
-widths = [0.5,0.2]
-epss = [1e-2,2e-2,4e-2,1e-1]
-params = constructParams(['dc','width','eps'],[dcs,widths,epss],'long_term_stdp_')
+etas = [1e-7,1e-6,1e-5,1e-4]
+epss = [1e-3,1e-4,1e-2,1e-1]
+params = constructParams(['eta','eps'],[etas,epss],'long_term_stdp_')
 print "running {0} simulations".format(reps*len(params))
 run_tasks(reps,params,do,withmp=True)
