@@ -37,15 +37,8 @@ def do((repetition_i,p)):
 
 		post_spikes = arange(50.0,t_end,100.0)
 
-		if dendr_spike == 'backprop':
-			d_s = inst_backprop
-		elif dendr_spike == 'dendr_det':
-			d_s = dendr_spike_det()
-		else:
-			raise Exception()
 
-
-		accum = run(my_s, fixed_spiker(post_spikes), d_s, Accumulator(save, my_s,interval=10), learn=learn)
+		accum = run(my_s, fixed_spiker(post_spikes), inst_backprop, Accumulator(save, my_s,interval=10), learn=learn)
 		res[pre_spike] = accum
 
 	cPickle.dump(res, open('{0}.p'.format(p['ident']),'wb'))
