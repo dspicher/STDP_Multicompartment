@@ -52,7 +52,6 @@ class Accumulator():
             self.res[key] = np.zeros((eff_steps,self._get_size(key)))
 
     def add(self, curr_t, **vals):
-        #embed()
         if np.abs(self.i-self.interval) < 1e-10:
             for key in self.keys:
                 self.res[key][self.j,:] = np.atleast_2d(vals[key])

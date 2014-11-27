@@ -17,7 +17,7 @@ def do((repetition_i,p)):
 
 	res = {}
 
-	t_end = 5000.0
+	t_end = 10000.0
 
 	for idx, pre_spike in enumerate(pres):
 
@@ -32,18 +32,30 @@ def do((repetition_i,p)):
 			'I_ext': lambda t: 0.0
 			}
 
-		save = ['weight','y','I_ext']
+		vals = {'g':g_E_D,
+				'syn_pots_sum':syn_pots_sum,
+				'y':y,
+				'spike':float(does_spike),
+				'V_w_star':V_w_star,
+				'dendr_pred':dendr_pred,
+				'h':h,
+				'dendr_spike':float(dendr_spike),
+				'weight':weight,
+				'weight_update':weight_update,
+				'I_ext':I_ext(curr_t - dt)}
+
+		save = vals.keys()
 
 		post_spikes = arange(50.0,t_end,100.0)
 
 
-		accum = run(my_s, fixed_spiker(post_spikes), inst_backprop, Accumulator(save, my_s,interval=10), learn=learn)
+		accum = run(my_s, fixed_spiker(post_spikes), inst_backprop, Accumulator(save, my_s,interval=20), learn=learn)
 		res[pre_spike] = accum
 
 	cPickle.dump(res, open('{0}.p'.format(p['ident']),'wb'))
 
 reps = 1
-etas = [1e-6,1e-5,1e-4,1e-3]
+etas = [1e-5,1e-4,1e-3,1e-2]
 epss = [1e-3,1e-4,1e-2,1e-1]
 params = constructParams(['eta','eps'],[etas,epss],'long_term_stdp_')
 print "running {0} simulations".format(reps*len(params))

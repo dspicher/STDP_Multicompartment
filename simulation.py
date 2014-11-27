@@ -45,6 +45,7 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
             'h':0.0,
             'dendr_spike':0.0,
             'weight':weight,
+            'weight_update':0.0,
             'I_ext':0.0}
 
     accumulator.add(curr_t, **vals)
@@ -76,7 +77,8 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
         if dendr_spike:
             last_spike_dendr = curr_t
 
-        weight += learn['eta']*(float(dendr_spike) - dt*dendr_pred)*h*y[2]
+        weight_update = learn['eta']*(float(dendr_spike) - dt*dendr_pred)*h*y[2]
+        weight += weight_update
 
         if weight < 0.0:
             weight = 0.0
@@ -92,6 +94,7 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
                 'h':h,
                 'dendr_spike':float(dendr_spike),
                 'weight':weight,
+                'weight_update':weight_update,
                 'I_ext':I_ext(curr_t - dt)}
 
         accumulator.add(curr_t, **vals)
