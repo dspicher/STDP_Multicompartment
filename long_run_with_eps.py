@@ -21,7 +21,7 @@ def do((repetition_i,p)):
 
 	res = {}
 
-	t_end = 50000.0
+	t_end = 5000.0
 
 	for idx, pre_spike in enumerate(pres):
 
