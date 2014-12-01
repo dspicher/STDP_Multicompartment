@@ -2,6 +2,9 @@ import json
 from model import phi, phi_prime
 import numpy as np
 from IPython import embed
+from operator import add
+import itertools as it
+import cPickle
 
 def get_default(params):
     return json.load(open('default_{0}.json'.format(params),'r'))
@@ -32,8 +35,25 @@ def periodic_current(first,interval,width,dcs):
             return dcs[1]
     return I_ext
 
-class Accumulator():
 
+def construct_params(ids, values, prefix=''):
+    ids = tuple(ids)
+
+    base_str = prefix + reduce(add, ['_{0}_{{{1}}}'.format(ids[i],i) for i in range(len(ids))])
+
+    combinations = it.product(*values)
+    params = []
+    for comb in combinations:
+        curr = {id:val for (id,val) in zip(ids,comb)}
+        curr['ident'] = base_str.format(*comb)
+        params.append(curr)
+
+    return params
+
+def dump(res,ident):
+    cPickle.dump(res, open('{0}.p'.format(ident),'wb'))
+
+class Accumulator():
     def _get_size(self, key):
         if key=='y':
             return 3

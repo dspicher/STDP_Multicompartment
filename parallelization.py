@@ -19,18 +19,3 @@ def run_tasks(repetitions, params, runTask, withmp=True):
     else:
         for pair in all_reps_params:
             runTask(pair)
-
-
-
-def constructParams(ids,values,prefix=''):
-    combinations = it.product(*values)
-    params = []
-    for comb in combinations:
-        curr = {}
-        ident = prefix
-        for idx in range(len(comb)):
-            curr[ids[idx]] = comb[idx]
-            ident = ident+'{0}_{1}_'.format(ids[idx],comb[idx])
-        curr['ident'] = ident
-        params.append(curr)
-    return params
