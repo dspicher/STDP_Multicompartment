@@ -9,7 +9,7 @@ from parallelization import run_tasks
 
 def do((repetition_i,p)):
 
-	pres = np.arange(20,81,10)
+	pres = np.array([20,30,40,60,70,80])
 
 	learn = {}
 	learn['eps'] = p['eps']
@@ -51,8 +51,8 @@ def do((repetition_i,p)):
 	dump(res,p['ident'])
 
 reps = 1
-etas = [2e-4,5e-4,1e-3,2e-3,5e-3]
-epss = [1e-2,2e-2,5e-3,1e-1]
+etas = [1e-4,2e-4,5e-4,1e-3,2e-3,5e-3,1e-2]
+epss = [1e-3,2e-3,5e-3,1e-2,2e-2,5e-5,1e-1]
 params = construct_params(['eta','eps'],[etas,epss],'stdp_stabilization_')
 print "running {0} simulations".format(reps*len(params))
 run_tasks(reps,params,do,withmp=True)
