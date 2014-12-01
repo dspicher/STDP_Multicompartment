@@ -1,10 +1,10 @@
 from simulation import run
-from util import fixed_spiker, inst_backprop, Accumulator, dendr_spike_det, periodic_current, get_default
+from util import *
 import numpy as np
 from IPython import embed
 from pylab import *
 import cPickle
-from parallelization import *
+from parallelization import run_tasks
 
 
 def do((repetition_i,p)):
@@ -52,11 +52,11 @@ def do((repetition_i,p)):
 		accum = run(my_s, fixed_spiker(post_spikes), inst_backprop, Accumulator(save, my_s,interval=20), learn=learn)
 		res[pre_spike] = accum
 
-	cPickle.dump(res, open('{0}.p'.format(p['ident']),'wb'))
+	dump(res,p['ident'])
 
 reps = 1
 etas = [1e-5,1e-4,1e-3,1e-2]
 epss = [1e-3,1e-4,1e-2,1e-1]
-params = constructParams(['eta','eps'],[etas,epss],'long_term_stdp_')
+params = construct_params(['eta','eps'],[etas,epss],'long_term_stdp_')
 print "running {0} simulations".format(reps*len(params))
 run_tasks(reps,params,do,withmp=True)
