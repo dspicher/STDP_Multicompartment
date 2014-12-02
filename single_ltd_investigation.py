@@ -15,9 +15,6 @@ def do((repetition_i,p)):
 	learn['eps'] = p['eps']
 	learn['eta'] = p['eta']
 
-	neuron = get_default("neuron")
-	neuron['delta_factor'] = p['factor']
-
 	res = {}
 
 	t_end = 5000.0
