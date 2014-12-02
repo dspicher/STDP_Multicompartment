@@ -38,9 +38,6 @@ def do((repetition_i,p)):
 		vals = {'g':0,
 				'syn_pots_sum':0,
 				'V_w_star':0,
-				'dendr_pred':0,
-				'y':0,
-				'h':0,
 				'weight':0}
 
 		save = vals.keys()
