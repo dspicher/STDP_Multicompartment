@@ -45,7 +45,7 @@ def do((repetition_i,p)):
 		post_spikes = arange(50.0,t_end,100.0)
 
 
-		accum = run(my_s, fixed_spiker(post_spikes), inst_backprop, Accumulator(save, my_s,interval=10), neuron=neuron, learn=learn)
+		accum = run(my_s, fixed_spiker(post_spikes), inst_backprop, Accumulator(save, my_s,interval=1), learn=learn)
 		res[pre_spike] = accum
 
 	dump(res,p['ident'])

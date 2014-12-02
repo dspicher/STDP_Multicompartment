@@ -10,17 +10,17 @@ def get_default(params):
     return json.load(open('default_{0}.json'.format(params),'r'))
 
 def get_all_save_keys():
-    return {'g':0.0,
-            'syn_pots_sum':0.0,
-            'y':y,
-            'spike':0.0,
-            'V_w_star':0.0,
-            'dendr_pred':0.0,
-            'h':0.0,
-            'dendr_spike':0.0,
-            'weight':weight,
-            'weight_update':0.0,
-            'I_ext':0.0}.keys()
+    return ['g',
+            'syn_pots_sum',
+            'y',
+            'spike',
+            'V_w_star',
+            'dendr_pred',
+            'h',
+            'dendr_spike',
+            'weight',
+            'weight_update',
+            'I_ext']
 
 def fixed_spiker(spikes):
     return lambda curr_t, dt, **kwargs: np.min(np.abs(curr_t-spikes)) < dt/2
