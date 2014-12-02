@@ -9,6 +9,19 @@ import cPickle
 def get_default(params):
     return json.load(open('default_{0}.json'.format(params),'r'))
 
+def get_all_save_keys():
+    return {'g':0.0,
+            'syn_pots_sum':0.0,
+            'y':y,
+            'spike':0.0,
+            'V_w_star':0.0,
+            'dendr_pred':0.0,
+            'h':0.0,
+            'dendr_spike':0.0,
+            'weight':weight,
+            'weight_update':0.0,
+            'I_ext':0.0}.keys()
+
 def fixed_spiker(spikes):
     return lambda curr_t, dt, **kwargs: np.min(np.abs(curr_t-spikes)) < dt/2
 
