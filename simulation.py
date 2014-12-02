@@ -50,7 +50,7 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
 
     accumulator.add(curr_t, **vals)
 
-    while curr_t < t_end - dt:
+    while curr_t < t_end - dt/2:
 
         g_E_D = g_E_D + np.sum(np.isclose(pre_spikes, curr_t))*weight
         g_E_D = g_E_D - dt*g_E_D/neuron['tau_s']
