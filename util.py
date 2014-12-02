@@ -66,7 +66,7 @@ class Accumulator():
         self.j = 0
         self.res = {}
         self.interval = interval
-        eff_steps = (sim['end']-sim['start'])/(sim['dt']*interval) + 1
+        eff_steps = np.arange(sim['start'], sim['end']+sim['dt'], sim['dt']*interval).shape[0]
         self.t = np.zeros(eff_steps)
         for key in keys:
             self.res[key] = np.zeros((eff_steps,self._get_size(key)))
