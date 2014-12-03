@@ -45,7 +45,7 @@ def do((repetition_i,p)):
 		post_spikes = arange(50.0,t_end,100.0)
 
 
-		accum = run(my_s, fixed_spiker(post_spikes), inst_backprop, Accumulator(save, my_s,interval=10), neuron=neuron, learn=learn)
+		accum = run(my_s, fixed_spiker(post_spikes), inst_backprop, Accumulator(save, my_s,interval=10), neuron=neuron, learn=learn, normalizer=lambda x: x)
 		res[pre_spike] = accum
 
 	dump(res,p['ident'])
@@ -53,7 +53,7 @@ def do((repetition_i,p)):
 reps = 1
 etas = [5e-4,1e-3]
 epss = [5e-3,2e-2]
-factors = [1, 2, 5, 10, 15, 20, 30, 40]
-params = construct_params(['eta','eps','factor'],[etas,epss,factors],'stdp_stabilization_factor_')
+factors = [1, 2, 5, 10]
+params = construct_params(['eta','eps','factor'],[etas,epss,factors],'stdp_stabilization_factor_no_rect_')
 print "running {0} simulations".format(reps*len(params))
 run_tasks(reps,params,do,withmp=True)

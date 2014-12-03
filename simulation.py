@@ -4,7 +4,7 @@ from IPython import embed
 from util import get_default, step_current
 from model import get_spike_currents, phi, phi_prime, urb_senn_rhs
 
-def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, learn=None, **kwargs):
+def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, learn=None, normalizer=None **kwargs):
 
     np.random.seed(kwargs.get('seed',0))
 
@@ -16,6 +16,9 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
 
     if learn is None:
         learn = get_default("learn")
+
+    if normalizer is None:
+        normalizer = lambda x: x if x > 0 else 0.0
 
     I_ext = sim.get('I_ext', step_current(np.array([[sim['start'],0.0]])))
 
@@ -80,8 +83,7 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
         weight_update = learn['eta']*(neuron['delta_factor']*float(dendr_spike) - dt*dendr_pred)*h*y[2]
         weight += weight_update
 
-        if weight < 0.0:
-            weight = 0.0
+        weight = normalizer(weight)
 
         curr_t = curr_t + dt
 
