@@ -5,7 +5,7 @@ def get_spike_currents(U, t_post_spike, neuron):
     current = 0.0
     if 0.0 <= t_post_spike < neuron['t_rise']:
         current += neuron['g_Na']*(neuron['E_Na'] - U)
-    if neuron['t_rise'] <= t_post_spike <= neuron['t_fall']:
+    if neuron['t_rise'] <= t_post_spike < neuron['t_fall']:
         current += neuron['g_K']*(neuron['E_K'] - U)
     return current
 
@@ -17,7 +17,7 @@ def phi_prime(U, phi_params):
     return phi_params['beta']*exp_term*phi_params['k']*phi_params['r_max']/(((1+exp_term*phi_params['k'])**2)*phi_params['thresh'])
 
 def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron):
-    # y=[U,V,Vdot]
+    # y=[U,V,dVdw]
     dy = np.zeros(3)
 
     dy[0] = -neuron['g_L']*y[0] + neuron['g_D']*(y[1]-y[0]) + I_ext
