@@ -53,4 +53,4 @@ etas = [1e-7,1e-6,1e-5,1e-4]
 epss = [1e-2,1e-3,1e-4,1e-5]
 params = construct_params(['eta','eps'],[etas,epss],'stdp_stabilization_factor_no_rect_')
 print "running {0} simulations".format(reps*len(params))
-run_tasks(reps,params,do,withmp=False)
+run_tasks(reps,params,do,withmp=True)
