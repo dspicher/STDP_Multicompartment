@@ -21,7 +21,6 @@ def do((repetition_i,p)):
 
 	for idx, pre_spike in enumerate(pres):
 
-		print pre_spike
 
 		pre_spikes = np.arange(pre_spike,t_end,100.0)
 		my_s = {
@@ -42,6 +41,7 @@ def do((repetition_i,p)):
 
 		post_spikes = arange(50.0,t_end,100.0)
 
+		my_s['I_ext'] = periodic_current(50.0, 100.0, 0.2, p['I'])
 
 		accum = run(my_s, fixed_spiker(post_spikes), inst_backprop, Accumulator(save, my_s,interval=20), learn=learn)
 		res[pre_spike] = accum
@@ -49,8 +49,9 @@ def do((repetition_i,p)):
 	dump(res,p['ident'])
 
 reps = 1
-etas = [1e-7,1e-6,1e-5,1e-4]
-epss = [1e-2,1e-3,1e-4,1e-5]
-params = construct_params(['eta','eps'],[etas,epss],'stdp_stabilization_factor_no_rect_')
+etas = [1e-7,1e-6]
+epss = [1e-1,1e-2,1e-3,1e-4,1e-5]
+Is = [0.0, 5.0, 10.0, 20.0, 40.0]
+params = construct_params(['eta','eps','I'],[etas,epss,Is],'stdp_long_with_I')
 print "running {0} simulations".format(reps*len(params))
 run_tasks(reps,params,do,withmp=True)

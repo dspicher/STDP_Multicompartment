@@ -40,12 +40,15 @@ def dendr_spike_det(thresh=1.0, tau=4.0):
 def step_current(steps):
     return lambda t: steps[steps[:,0]<=t,1][-1]
 
-def periodic_current(first,interval,width,dcs):
+def periodic_current(first, interval, width, dc_on, dc_off=0.0):
     def I_ext(t):
-        if (t-first)%interval <= width/2:
-            return dcs[0]
+        if np.abs(t%interval - first) <= width/2 or np.isclose(first - t%interval, width/2):
+            if np.isclose(t%interval,first+width/2):
+                return dc_off
+            else:
+                return dc_on
         else:
-            return dcs[1]
+            return dc_off
     return I_ext
 
 
