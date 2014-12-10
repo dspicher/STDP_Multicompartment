@@ -1,4 +1,5 @@
-from util import fixed_spiker, inst_backprop, Accumulator, do
+from util import fixed_spiker, inst_backprop
+from helper import do, Accumulator
 import numpy as np
 from IPython import embed
 import cPickle
