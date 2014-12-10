@@ -1,17 +1,11 @@
-from simulation import run
-from util import *
+from util import fixed_spiker, inst_backprop, Accumulator, do
 import numpy as np
 from IPython import embed
-from pylab import *
 import cPickle
-from parallelization import run_tasks
 from collections import OrderedDict
-import argparse
-import os
 
-def do((repetition_i,p)):
+def task((repetition_i,p)):
 	return
-
 	pres = np.arange(10,91,10)
 
 	learn = {}
@@ -42,7 +36,7 @@ def do((repetition_i,p)):
 
 		save = vals.keys()
 
-		post_spikes = arange(50.0,t_end,100.0)
+		post_spikes = np.arange(50.0,t_end,100.0)
 
 		my_s['I_ext'] = periodic_current(50.0, 100.0, 0.2, p['I'])
 
@@ -51,19 +45,11 @@ def do((repetition_i,p)):
 
 	dump(res,p['ident'])
 
-parser = argparse.ArgumentParser(description='Parsing simulation run comment')
-parser.add_argument('description', type=str, help='simulation purpose')
-
-nb_descriptors = OrderedDict()
-nb_descriptors['simulation file'] = os.path.basename(__file__)
-nb_descriptors['description'] = parser.parse_args().description
-
 params = OrderedDict()
 params['eta'] = [1e-7,1e-6]
 params['eps'] = [1e-1,1e-2,1e-3,1e-4,1e-5]
 params['I'] = [0.0, 5.0, 10.0, 20.0, 40.0]
 
 file_prefix = 'stdp_long_with_I'
-nb_descriptors['result files prefix'] = file_prefix
-runs = construct_params(params,file_prefix)
-run_tasks(runs, params, do, nb_descriptors, withmp=False)
+
+do(task, params, file_prefix, withmp=False)

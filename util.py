@@ -1,10 +1,14 @@
 import json
 from model import phi, phi_prime
+from parallelization import run_tasks
 import numpy as np
 from IPython import embed
 from operator import add
 import itertools as it
 import cPickle
+import argparse, inspect
+from collections import OrderedDict
+import time, datetime
 
 def get_default(params):
     return json.load(open('default_{0}.json'.format(params),'r'))
@@ -21,6 +25,30 @@ def get_all_save_keys():
             'weight',
             'weight_update',
             'I_ext']
+
+def do(func, params, file_prefix, **kwargs):
+    parser = argparse.ArgumentParser(description='Parsing simulation run comment')
+    parser.add_argument('description', type=str, help='simulation purpose')
+
+    nb_descriptors = OrderedDict()
+    st = inspect.stack()
+    nb_descriptors['simulation file'] = st[1][1]
+    nb_descriptors['description'] = parser.parse_args().description
+    nb_descriptors['result files prefix'] = file_prefix
+    param_counts = map(len,params.values())
+    nb_descriptors['# result files'] = '\*'.join(map(str,param_counts)) + ' = ' + str(reduce(lambda x,y:x*y,param_counts))
+
+    runs, base_str = construct_params(params,file_prefix)
+
+    ts = time.time()
+    nb_descriptors['simulation start'] = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+
+    run_tasks(runs, func, **kwargs)
+
+    ts = time.time()
+    nb_descriptors['simulation end'] = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+
+    create_analysis_notebook(nb_descriptors, params, base_str)
 
 def fixed_spiker(spikes):
     return lambda curr_t, dt, **kwargs: np.min(np.abs(curr_t-spikes)) < dt/2
@@ -51,14 +79,17 @@ def periodic_current(first, interval, width, dc_on, dc_off=0.0):
             return dc_off
     return I_ext
 
-def get_git_revision_hash():
-    import subprocess
-    return subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+def get_git_info():
+    import subprocess, re
+    rev_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+    repo = subprocess.check_output(['git', 'remote', '-v'])
+    repo = re.search('https.*git',repo).group(0)
+    return repo.strip(), rev_hash.strip()
 
 
 def create_analysis_notebook(nb_descriptors, ps, base_str):
     from IPython.nbformat import current as nbf
-    nb_descriptors['git revision hash'] = get_git_revision_hash().strip()
+    nb_descriptors['repository'], nb_descriptors['revision hash'] = get_git_info()
 
     nb = nbf.new_notebook()
 
@@ -115,7 +146,7 @@ def construct_params(params, prefix=''):
         curr['ident'] = base_str.format(*comb)
         concat_params.append(curr)
 
-    return {'params': concat_params, 'base_str':base_str}
+    return concat_params, base_str
 
 def dump(res,ident):
     cPickle.dump(res, open('{0}.p'.format(ident),'wb'))
