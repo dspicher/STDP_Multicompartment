@@ -1,16 +1,9 @@
-import json
 from model import phi, phi_prime
-from parallelization import run_tasks
 import numpy as np
 from IPython import embed
-from operator import add
-import itertools as it
-import cPickle
-import argparse, inspect
-from collections import OrderedDict
-import time, datetime
 
 def get_default(params):
+    import json
     return json.load(open('default_{0}.json'.format(params),'r'))
 
 def get_all_save_keys():
@@ -27,6 +20,11 @@ def get_all_save_keys():
             'I_ext']
 
 def do(func, params, file_prefix, **kwargs):
+    from parallelization import run_tasks
+    import argparse, inspect
+    from collections import OrderedDict
+    import time, datetime
+
     parser = argparse.ArgumentParser(description='Parsing simulation run comment')
     parser.add_argument('description', type=str, help='simulation purpose')
 
@@ -47,6 +45,8 @@ def do(func, params, file_prefix, **kwargs):
 
     ts = time.time()
     nb_descriptors['simulation end'] = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+
+    nb_descriptors['repository'], nb_descriptors['revision hash'] = get_git_info()
 
     create_analysis_notebook(nb_descriptors, params, base_str)
 
@@ -89,7 +89,6 @@ def get_git_info():
 
 def create_analysis_notebook(nb_descriptors, ps, base_str):
     from IPython.nbformat import current as nbf
-    nb_descriptors['repository'], nb_descriptors['revision hash'] = get_git_info()
 
     nb = nbf.new_notebook()
 
@@ -131,6 +130,9 @@ def create_analysis_notebook(nb_descriptors, ps, base_str):
 
 
 def construct_params(params, prefix=''):
+    from itertools import product
+    from operator import add
+
     ids =tuple(params.keys())
     values = tuple(params.values())
 
@@ -139,7 +141,7 @@ def construct_params(params, prefix=''):
 
     base_str = prefix + reduce(add, ['_{0}_{{{1}}}'.format(ids[i],i) for i in range(len(ids))])
 
-    combinations = it.product(*values)
+    combinations = product(*values)
     concat_params = []
     for comb in combinations:
         curr = {id:val for (id,val) in zip(ids,comb)}
@@ -149,6 +151,7 @@ def construct_params(params, prefix=''):
     return concat_params, base_str
 
 def dump(res,ident):
+    import cPickle
     cPickle.dump(res, open('{0}.p'.format(ident),'wb'))
 
 class Accumulator():
