@@ -5,9 +5,12 @@ from IPython import embed
 from pylab import *
 import cPickle
 from parallelization import run_tasks
-
+from collections import OrderedDict
+import argparse
+import os
 
 def do((repetition_i,p)):
+	return
 
 	pres = np.arange(10,91,10)
 
@@ -48,10 +51,19 @@ def do((repetition_i,p)):
 
 	dump(res,p['ident'])
 
-reps = 1
-etas = [1e-7,1e-6]
-epss = [1e-1,1e-2,1e-3,1e-4,1e-5]
-Is = [0.0, 5.0, 10.0, 20.0, 40.0]
-params = construct_params(['eta','eps','I'],[etas,epss,Is],'stdp_long_with_I')
-print "running {0} simulations".format(reps*len(params))
-run_tasks(reps,params,do,withmp=True)
+parser = argparse.ArgumentParser(description='Parsing simulation run comment')
+parser.add_argument('description', type=str, help='simulation purpose')
+
+nb_descriptors = OrderedDict()
+nb_descriptors['simulation file'] = os.path.basename(__file__)
+nb_descriptors['description'] = parser.parse_args().description
+
+params = OrderedDict()
+params['eta'] = [1e-7,1e-6]
+params['eps'] = [1e-1,1e-2,1e-3,1e-4,1e-5]
+params['I'] = [0.0, 5.0, 10.0, 20.0, 40.0]
+
+file_prefix = 'stdp_long_with_I'
+nb_descriptors['result files prefix'] = file_prefix
+runs = construct_params(params,file_prefix)
+run_tasks(runs, params, do, nb_descriptors, withmp=False)
