@@ -15,7 +15,7 @@ def task((repetition_i,p)):
 
 	res = {}
 
-	t_end = 2.0
+	t_end = 20000.0
 
 	for idx, pre_spike in enumerate(pres):
 
