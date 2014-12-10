@@ -17,7 +17,7 @@ def get_all_save_keys():
             'I_ext']
 
 def fixed_spiker(spikes):
-    return lambda curr_t, dt, **kwargs: np.min(np.abs(curr_t-spikes)) < dt/2
+    return lambda curr_t, dt, **kwargs: spikes.shape[0] > 0 and np.min(np.abs(curr_t-spikes)) < dt/2
 
 def phi_spiker(phi_params=None):
     if phi_params is None:

@@ -1,3 +1,4 @@
+import numpy as np
 
 def dump(res,ident):
     import cPickle
@@ -89,7 +90,7 @@ def create_analysis_notebook(nb_descriptors, ps, base_str):
 
     cells.append(nbf.new_text_cell('markdown',md_cell))
 
-    cells.append(nbf.new_code_cell("%pylab inline\nimport cPickle\nfrom util import Accumulator\nfrom itertools import product"))
+    cells.append(nbf.new_code_cell("%pylab inline\nimport cPickle\nfrom helper import Accumulator\nfrom itertools import product"))
 
     pickler_cell_str = ""
     pickler_cell_str += "def get(" + ", ".join(ps.keys()) + "):\n"

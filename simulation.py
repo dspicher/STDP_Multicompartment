@@ -1,7 +1,8 @@
 import numpy as np
 from scipy import integrate, random
 from IPython import embed
-from util import get_default, step_current
+from helper import get_default
+from util import step_current
 from model import get_spike_currents, phi, phi_prime, urb_senn_rhs
 
 def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, learn=None, normalizer=None, **kwargs):
