@@ -51,20 +51,71 @@ def periodic_current(first, interval, width, dc_on, dc_off=0.0):
             return dc_off
     return I_ext
 
+def get_git_revision_hash():
+    import subprocess
+    return subprocess.check_output(['git', 'rev-parse', 'HEAD'])
 
-def construct_params(ids, values, prefix=''):
-    ids = tuple(ids)
+
+def create_analysis_notebook(nb_descriptors, ps, base_str):
+    from IPython.nbformat import current as nbf
+    nb_descriptors['git revision hash'] = get_git_revision_hash().strip()
+
+    nb = nbf.new_notebook()
+
+    cells = []
+
+    md_cell = ''
+    md_cell += '| Field | Value |\n'
+    md_cell += '|-|-|\n'
+    md_cell +="\n".join(['| ' + name + ' | ' + des + ' |' for (name,des) in nb_descriptors.items()])
+
+    cells.append(nbf.new_text_cell('markdown',md_cell))
+
+    cells.append(nbf.new_code_cell("%pylab inline\nimport cPickle\nfrom util import Accumulator\nfrom itertools import product"))
+
+    pickler_cell_str = ""
+    pickler_cell_str += "def get(" + ", ".join(ps.keys()) + "):\n"
+    pickler_cell_str += "    return cPickle.load(open(\'" + base_str + ".p\'.format(" + ", ".join(ps.keys()) + "),\'rb\'))\n\n\n"
+
+
+
+    for name, vals in ps.items():
+        pickler_cell_str += name + "s = " + str(vals) + "\n"
+
+    names = [k+"s" for k in ps.keys()   ]
+    pickler_cell_str += "\n\n"
+    pickler_cell_str += "params = list(product(" + ", ".join(names) + "))"
+
+    pickler_cell_str += "\n\n"
+    pickler_cell_str += "data = {tup:get(*tup) for tup in params}"
+
+    cells.append(nbf.new_code_cell(pickler_cell_str))
+
+    nb['worksheets'].append(nbf.new_worksheet(cells=cells))
+
+    fname = nb_descriptors['simulation file'][:-3] + "_analysis.ipynb"
+
+    with open(fname, 'w') as f:
+        nbf.write(nb, f, 'ipynb')
+
+
+def construct_params(params, prefix=''):
+    ids =tuple(params.keys())
+    values = tuple(params.values())
+
+    if prefix.endswith("_"):
+        prefix = prefix[:-1]
 
     base_str = prefix + reduce(add, ['_{0}_{{{1}}}'.format(ids[i],i) for i in range(len(ids))])
 
     combinations = it.product(*values)
-    params = []
+    concat_params = []
     for comb in combinations:
         curr = {id:val for (id,val) in zip(ids,comb)}
         curr['ident'] = base_str.format(*comb)
-        params.append(curr)
+        concat_params.append(curr)
 
-    return params
+    return {'params': concat_params, 'base_str':base_str}
 
 def dump(res,ident):
     cPickle.dump(res, open('{0}.p'.format(ident),'wb'))
