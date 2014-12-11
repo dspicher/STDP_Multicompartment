@@ -70,10 +70,11 @@ def do(func, params, file_prefix, **kwargs):
 
 def get_git_info():
     import subprocess, re
-    rev_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+    rev_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip()
     repo = subprocess.check_output(['git', 'remote', '-v'])
-    repo = re.search('https.*git',repo).group(0)
-    return repo.strip(), rev_hash.strip()
+    repo = re.search('https.*git',repo).group(0).strip()[:-4]
+    rev_string = '[' + rev_hash + '](' + repo + '/tree/' + rev_hash + ')'
+    return repo, rev_string
 
 
 def create_analysis_notebook(nb_descriptors, ps, base_str):
