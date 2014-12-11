@@ -28,8 +28,8 @@ def phi_spiker(phi_params=None):
 def inst_backprop(curr_t, last_spike, **kwargs):
     return curr_t==last_spike
 
-def dendr_spike_det(thresh=1.0, tau=4.0):
-    return lambda y, curr_t, last_spike_dendr, **kwargs: y[1] > thresh and (curr_t-last_spike_dendr > tau)
+def dendr_spike_det(y, curr_t, last_spike_dendr, thresh=1.0, tau=4.0, **kwargs):
+    return y[1] > thresh and (curr_t-last_spike_dendr > tau)
 
 def step_current(steps):
     return lambda t: steps[steps[:,0]<=t,1][-1]
