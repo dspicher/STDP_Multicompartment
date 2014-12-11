@@ -5,7 +5,7 @@ from helper import get_default
 from util import step_current
 from model import get_spike_currents, phi, phi_prime, urb_senn_rhs
 
-def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, learn=None, normalizer=None, **kwargs):
+def run(sim, spiker, spiker_dendr, accumulators, neuron=None, phi_params=None, learn=None, normalizer=None, **kwargs):
 
     np.random.seed(kwargs.get('seed',0))
 
@@ -52,7 +52,8 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
             'weight_update':0.0,
             'I_ext':0.0}
 
-    accumulator.add(curr_t, **vals)
+    for acc in accumulators:
+        acc.add(curr_t, **vals)
 
     while curr_t < t_end - dt/2:
 
@@ -100,6 +101,7 @@ def run(sim, spiker, spiker_dendr, accumulator, neuron=None, phi_params=None, le
                 'weight_update':weight_update,
                 'I_ext':I_ext(curr_t - dt)}
 
-        accumulator.add(curr_t, **vals)
+        for acc in accumulators:
+            acc.add(curr_t, **vals)
 
-    return accumulator
+    return accumulators
