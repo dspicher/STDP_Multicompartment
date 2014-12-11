@@ -11,6 +11,12 @@ class Accumulator():
         else:
             return 1
 
+    def _get_type(self, key):
+        if 'spike' in key:
+            return np.bool
+        else:
+            return np.float32
+
     def __init__(self, keys, sim, interval=1):
         self.keys = keys
         self.i = interval
@@ -18,9 +24,9 @@ class Accumulator():
         self.res = {}
         self.interval = interval
         eff_steps = np.arange(sim['start'], sim['end']+sim['dt'], sim['dt']*interval).shape[0]
-        self.t = np.zeros(eff_steps)
+        self.t = np.zeros(eff_steps, self._get_type('t'))
         for key in keys:
-            self.res[key] = np.zeros((eff_steps,self._get_size(key)))
+            self.res[key] = np.zeros((eff_steps,self._get_size(key)), self._get_type(key))
 
     def add(self, curr_t, **vals):
         if np.abs(self.i-self.interval) < 1e-10:
