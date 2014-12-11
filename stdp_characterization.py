@@ -15,7 +15,7 @@ def task((repetition_i,p)):
 
 	res = {}
 
-	t_end = 5.0
+	t_end = 20000.0
 
 	for idx, pre_spike in enumerate(pres):
 
@@ -53,6 +53,6 @@ params['eps'] = [1e-3,3e-3,1e-2]
 params['I'] = [0.0, 10.0, 40.0]
 params['dendr_spike'] = ['inst_backprop', 'dendr_spike_det']
 
-file_prefix = 'stdp_long_with_I'
+file_prefix = 'stdp_characterization'
 
-do(task, params, file_prefix, withmp=False)
+do(task, params, file_prefix)
