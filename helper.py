@@ -64,6 +64,8 @@ def do(func, params, file_prefix, **kwargs):
 
     runs, base_str = construct_params(params,file_prefix)
 
+    create_analysis_notebook(nb_descriptors, params, texts, base_str)
+
     ts = time.time()
     nb_descriptors['simulation start'] = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
 
