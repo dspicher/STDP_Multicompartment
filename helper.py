@@ -4,18 +4,22 @@ def dump(res,ident):
     import cPickle
     cPickle.dump(res, open('{0}.p'.format(ident),'wb'))
 
-class Accumulator():
+class BooleanAccumulator:
+    def __init__(self, keys):
+        self.keys = keys
+        self.res = {key:np.array([]) for key in keys}
+
+    def add(self, curr_t, **vals):
+        for key in self.keys:
+            if vals[key]:
+                self.res[key] = np.append(self.res[key], curr_t)
+
+class PeriodicAccumulator:
     def _get_size(self, key):
         if key=='y':
             return 3
         else:
             return 1
-
-    def _get_type(self, key):
-        if 'spike' in key:
-            return np.bool
-        else:
-            return np.float32
 
     def __init__(self, keys, sim, interval=1):
         self.keys = keys
@@ -24,12 +28,12 @@ class Accumulator():
         self.res = {}
         self.interval = interval
         eff_steps = np.arange(sim['start'], sim['end']+sim['dt'], sim['dt']*interval).shape[0]
-        self.t = np.zeros(eff_steps, self._get_type('t'))
+        self.t = np.zeros(eff_steps, np.float32)
         for key in keys:
-            self.res[key] = np.zeros((eff_steps,self._get_size(key)), self._get_type(key))
+            self.res[key] = np.zeros((eff_steps,self._get_size(key)), np.float32)
 
     def add(self, curr_t, **vals):
-        if np.abs(self.i-self.interval) < 1e-10:
+        if np.isclose(self.i, self.interval):
             for key in self.keys:
                 self.res[key][self.j,:] = np.atleast_2d(vals[key])
 
@@ -43,15 +47,16 @@ def get_default(params):
     import json
     return json.load(open('default_{0}.json'.format(params),'r'))
 
-def do(func, params, file_prefix, **kwargs):
+def do(func, params, file_prefix, prompt=True, **kwargs):
     from parallelization import run_tasks
     import inspect
     from collections import OrderedDict
     import time, datetime
 
     texts = OrderedDict()
-    for t in ["Motivation", "Hypothesis"]:
-        texts[t] = input("{0}: ".format(t))
+    if prompt:
+        for t in ["Motivation", "Hypothesis"]:
+            texts[t] = input("{0}: ".format(t))
     for t in ["Results", "Conclusion"]:
         texts[t] = "<font color='grey'>n/a</font>"
 
@@ -103,7 +108,7 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str):
     md_cell = "\n\n".join('### ' + field + "\n" + value for (field, value) in texts.items())
     cells.append(nbf.new_text_cell('markdown', md_cell))
 
-    cells.append(nbf.new_code_cell("%pylab inline\nimport cPickle\nfrom helper import Accumulator\nfrom itertools import product"))
+    cells.append(nbf.new_code_cell("%pylab inline\nimport cPickle\nfrom helper import PeriodicAccumulator, BooleanAccumulator\nfrom itertools import product"))
 
     pickler_cell_str = ""
     pickler_cell_str += "def get(" + ", ".join(ps.keys()) + "):\n"
@@ -112,7 +117,7 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str):
 
 
     for name, vals in ps.items():
-        pickler_cell_str += name + "s = " + str(vals) + "\n"
+        pickler_cell_str += name + "s = " + repr(vals) + "\n"
 
     names = [k+"s" for k in ps.keys()   ]
     pickler_cell_str += "\n\n"

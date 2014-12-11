@@ -1,5 +1,5 @@
 from util import fixed_spiker, inst_backprop, periodic_current, dendr_spike_det
-from helper import do, Accumulator, dump
+from helper import do, PeriodicAccumulator, BooleanAccumulator, dump
 import numpy as np
 from IPython import embed
 import cPickle
@@ -38,7 +38,7 @@ def task((repetition_i,p)):
 
 	my_s['I_ext'] = periodic_current(100.0, 200.0, 0.5, p['I'])
 
-	accs = [Accumulator(save, my_s,interval=20), Accumulator(['spike', 'dendr_spike'], my_s,)]
+	accs = [PeriodicAccumulator(save, my_s,interval=20), BooleanAccumulator(['spike', 'dendr_spike'])]
 
 	accums = run(my_s, fixed_spiker(post_spikes), eval(p['dendr_spike']), accs, learn=learn)
 
