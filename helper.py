@@ -69,7 +69,7 @@ def do(func, params, file_prefix, prompt=True, **kwargs):
 
     runs, base_str = construct_params(params,file_prefix)
 
-    create_analysis_notebook(nb_descriptors, params, texts, base_str)
+    create_analysis_notebook(nb_descriptors, params, texts, base_str, "_pre")
 
     ts = time.time()
     nb_descriptors['simulation start'] = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
@@ -92,7 +92,7 @@ def get_git_info():
     return repo, rev_string
 
 
-def create_analysis_notebook(nb_descriptors, ps, texts, base_str):
+def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix=''):
     from IPython.nbformat import current as nbf
 
     nb = nbf.new_notebook()
@@ -130,7 +130,7 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str):
 
     nb['worksheets'].append(nbf.new_worksheet(cells=cells))
 
-    fname = nb_descriptors['simulation file'][:-3] + "_analysis.ipynb"
+    fname = nb_descriptors['simulation file'][:-3] + "_analysis" + name_postfix + ".ipynb"
 
     with open(fname, 'w') as f:
         nbf.write(nb, f, 'ipynb')
