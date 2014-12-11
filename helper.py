@@ -39,17 +39,19 @@ def get_default(params):
 
 def do(func, params, file_prefix, **kwargs):
     from parallelization import run_tasks
-    import argparse, inspect
+    import inspect
     from collections import OrderedDict
     import time, datetime
 
-    parser = argparse.ArgumentParser(description='Parsing simulation run comment')
-    parser.add_argument('description', type=str, help='simulation purpose')
+    texts = OrderedDict()
+    for t in ["Motivation", "Hypothesis"]:
+        texts[t] = input("{0}: ".format(t))
+    for t in ["Results", "Conclusion"]:
+        texts[t] = "<font color='grey'>n/a</font>"
 
     nb_descriptors = OrderedDict()
     st = inspect.stack()
     nb_descriptors['simulation file'] = st[1][1]
-    nb_descriptors['description'] = parser.parse_args().description
     nb_descriptors['result files prefix'] = file_prefix
     param_counts = map(len,params.values())
     nb_descriptors['# result files'] = '\*'.join(map(str,param_counts)) + ' = ' + str(reduce(lambda x,y:x*y,param_counts))
@@ -66,7 +68,7 @@ def do(func, params, file_prefix, **kwargs):
 
     nb_descriptors['repository'], nb_descriptors['revision hash'] = get_git_info()
 
-    create_analysis_notebook(nb_descriptors, params, base_str)
+    create_analysis_notebook(nb_descriptors, params, texts, base_str)
 
 def get_git_info():
     import subprocess, re
@@ -77,7 +79,7 @@ def get_git_info():
     return repo, rev_string
 
 
-def create_analysis_notebook(nb_descriptors, ps, base_str):
+def create_analysis_notebook(nb_descriptors, ps, texts, base_str):
     from IPython.nbformat import current as nbf
 
     nb = nbf.new_notebook()
@@ -88,8 +90,10 @@ def create_analysis_notebook(nb_descriptors, ps, base_str):
     md_cell += '| Field | Value |\n'
     md_cell += '|-|-|\n'
     md_cell +="\n".join(['| ' + name + ' | ' + des + ' |' for (name,des) in nb_descriptors.items()])
+    cells.append(nbf.new_text_cell('markdown', md_cell))
 
-    cells.append(nbf.new_text_cell('markdown',md_cell))
+    md_cell = "\n\n".join('### ' + field + "\n" + value for (field, value) in texts.items())
+    cells.append(nbf.new_text_cell('markdown', md_cell))
 
     cells.append(nbf.new_code_cell("%pylab inline\nimport cPickle\nfrom helper import Accumulator\nfrom itertools import product"))
 
