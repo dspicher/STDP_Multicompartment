@@ -71,13 +71,17 @@ def do(func, params, file_prefix, prompt=True, **kwargs):
 
     create_analysis_notebook(nb_descriptors, params, texts, base_str, "_pre")
 
-    ts = time.time()
-    nb_descriptors['simulation start'] = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    ts = datetime.datetime.fromtimestamp(time.time())
+
+    nb_descriptors['simulation start'] = ts.strftime('%Y-%m-%d %H:%M:%S')
 
     run_tasks(runs, func, **kwargs)
 
-    ts = time.time()
-    nb_descriptors['simulation end'] = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    te = datetime.datetime.fromtimestamp(time.time())
+    nb_descriptors['simulation end'] = te.strftime('%Y-%m-%d %H:%M:%S')
+    nb_descriptors['duration'] = str(te-ts)
+
+
 
     nb_descriptors['repository'], nb_descriptors['revision hash'] = get_git_info()
 
