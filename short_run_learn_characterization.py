@@ -43,4 +43,4 @@ params['pre_spike'] = np.arange(20,181,20)
 
 file_prefix = 'short_runs_characterization'
 
-do(task, params, file_prefix, prompt=False, withmp=False)
+do(task, params, file_prefix)
