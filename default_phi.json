@@ -1,6 +1,7 @@
 {
-  "thresh": 1.0,
+  "thresh": 15.0,
   "k": 1.0,
   "r_max": 0.3,
-  "beta": 6.0
+  "beta": 6.0,
+  "U_shift": -70.0
 }

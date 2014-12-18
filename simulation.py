@@ -38,7 +38,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, phi_params=None, l
     g_E_D = 0.0
     syn_pots_sum = 0.0
 
-    y = np.zeros(3)
+    y = np.array([neuron["E_L"],neuron["E_L"],0])
 
     vals = {'g':0.0,
             'syn_pots_sum':0.0,
