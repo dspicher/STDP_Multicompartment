@@ -19,7 +19,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, phi_params=None, l
         learn = get_default("learn")
 
     if normalizer is None:
-        normalizer = lambda x: x if x > 0 else 0.0
+        normalizer = lambda x: np.max(x,0.0)
 
     I_ext = sim.get('I_ext', step_current(np.array([[sim['start'],0.0]])))
 
@@ -65,6 +65,8 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, phi_params=None, l
         args=(curr_t-last_spike, g_E_D, syn_pots_sum, I_ext(curr_t), neuron,)
         y = integrate.odeint(urb_senn_rhs, y, np.array([curr_t,curr_t+dt]),hmax=dt,args=args)[1,:]
 
+        curr_t = curr_t + dt
+
         if curr_t - last_spike < neuron['tau_ref']:
             does_spike = False
         else:
@@ -86,8 +88,6 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, phi_params=None, l
         weight += weight_update
 
         weight = normalizer(weight)
-
-        curr_t = curr_t + dt
 
         vals = {'g':g_E_D,
                 'syn_pots_sum':syn_pots_sum,
