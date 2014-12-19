@@ -28,7 +28,7 @@ def task((repetition_i,p)):
 
 	post_spikes = np.arange(100.0,t_end,200.0)
 
-	accs = [PeriodicAccumulator(get_all_save_keys(), my_s, interval=10)]
+	accs = [PeriodicAccumulator(get_all_save_keys(), my_s, interval=10), BooleanAccumulator(['spike','dendr_spike'])]
 
 	accums = run(my_s, fixed_spiker(post_spikes), eval(p['dendr_spike']), accs, learn=learn)
 
