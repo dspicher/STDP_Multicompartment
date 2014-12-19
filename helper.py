@@ -79,7 +79,7 @@ def do(func, params, file_prefix, prompt=True, **kwargs):
 
     te = datetime.datetime.fromtimestamp(time.time())
     nb_descriptors['simulation end'] = te.strftime('%Y-%m-%d %H:%M:%S')
-    nb_descriptors['duration'] = str(te-ts)
+    nb_descriptors['duration'] = str(datetime.timedelta(seconds=(te-ts).seconds))
 
 
 
