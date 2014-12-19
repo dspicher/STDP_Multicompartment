@@ -39,7 +39,7 @@ params = OrderedDict()
 params['eps'] = [1e-1,1e-2,1e-3,1e-4]
 params['I'] = [0,5,10,20,40]
 params['dendr_spike'] = ['inst_backprop','dendr_spike_det']
-params['pre_spike'] = np.arange(20,181,20)
+params['pre_spike'] = 100 + np.array([-50,-20,-10,10,20,50])
 
 file_prefix = 'short_runs_characterization'
 
