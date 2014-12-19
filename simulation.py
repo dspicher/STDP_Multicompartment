@@ -12,6 +12,10 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, phi_params=None, l
     if neuron is None:
         neuron = get_default("neuron")
 
+    # dendritic spike threshold
+    # heuristic formular which gives one for roberts shifted system
+    thresh = (neuron["E_E"] - neuron["E_L"]) / (4.0+2.0/3.0)
+
     if phi_params is None:
         phi_params = get_default("phi")
 
@@ -79,7 +83,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, phi_params=None, l
         dendr_pred = phi(V_w_star, phi_params)
         h = phi_prime(V_w_star, phi_params)/phi(V_w_star, phi_params)
 
-        dendr_spike = spiker_dendr(y=y, curr_t=curr_t, last_spike=last_spike, last_spike_dendr=last_spike_dendr)
+        dendr_spike = spiker_dendr(y=y, curr_t=curr_t, thresh=thresh, last_spike=last_spike, last_spike_dendr=last_spike_dendr)
 
         if dendr_spike:
             last_spike_dendr = curr_t
