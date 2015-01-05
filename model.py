@@ -9,12 +9,20 @@ def get_spike_currents(U, t_post_spike, neuron):
         current += neuron['g_K']*(neuron['E_K'] - U)
     return current
 
-def phi(U, phi_params):
-    return phi_params['r_max']/(1+phi_params['k']*np.exp(phi_params['beta']*(1-(U-phi_params["U_shift"])/phi_params['thresh'])))
+def phi(U, neuron):
+    thresh = neuron['E_I'] - neuron['E_K']
+    shift = neuron['E_L']
 
-def phi_prime(U, phi_params):
-    exp_term = np.exp(phi_params['beta']*(1-(U-phi_params["U_shift"])/phi_params['thresh']))
-    return phi_params['beta']*exp_term*phi_params['k']*phi_params['r_max']/(((1+exp_term*phi_params['k'])**2)*phi_params['thresh'])
+    phi_params = neuron['phi']
+    return phi_params['r_max']/(1+phi_params['k']*np.exp(phi_params['beta']*(1-(U-shift)/thresh)))
+
+def phi_prime(U, neuron):
+    thresh = neuron['E_I'] - neuron['E_K']
+    shift = neuron['E_L']
+
+    phi_params = neuron['phi']
+    exp_term = np.exp(phi_params['beta']*(1-(U-shift)/thresh))
+    return phi_params['beta']*exp_term*phi_params['k']*phi_params['r_max']/(((1+exp_term*phi_params['k'])**2)*thresh)
 
 def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron):
     # y=[U,V,dVdw]

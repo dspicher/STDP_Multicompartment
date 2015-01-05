@@ -13,5 +13,11 @@
   "tau_s": 3,
   "t_rise": 1.0,
   "t_fall": 3.0,
-  "delta_factor": 1.0
+  "delta_factor": 1.0,
+  "phi": {
+    "thresh": 15.0,
+    "k": 1.0,
+    "r_max": 0.3,
+    "beta": 6.0
+  }
 }

@@ -5,7 +5,7 @@ from helper import get_default
 from util import step_current
 from model import get_spike_currents, phi, phi_prime, urb_senn_rhs
 
-def run(sim, spiker, spiker_dendr, accumulators, neuron=None, phi_params=None, learn=None, normalizer=None, **kwargs):
+def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normalizer=None, **kwargs):
 
     np.random.seed(kwargs.get('seed',0))
 
@@ -15,9 +15,6 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, phi_params=None, l
     # dendritic spike threshold
     # heuristic formular which gives one for roberts shifted system
     thresh = neuron["E_L"] + (neuron["E_E"] - neuron["E_L"]) / (4.0+2.0/3.0)
-
-    if phi_params is None:
-        phi_params = get_default("phi")
 
     if learn is None:
         learn = get_default("learn")
@@ -80,8 +77,8 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, phi_params=None, l
             last_spike = curr_t
 
         V_w_star = neuron['g_D']/(neuron['g_D']+neuron['g_L'])*y[1]
-        dendr_pred = phi(V_w_star, phi_params)
-        h = phi_prime(V_w_star, phi_params)/phi(V_w_star, phi_params)
+        dendr_pred = phi(V_w_star, neuron)
+        h = phi_prime(V_w_star, neuron)/phi(V_w_star, neuron)
 
         dendr_spike = spiker_dendr(y=y, curr_t=curr_t, thresh=thresh, last_spike=last_spike, last_spike_dendr=last_spike_dendr)
 
