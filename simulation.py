@@ -38,8 +38,9 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
     g_E_D = 0.0
     syn_pots_sum = 0.0
+    PIV = 0.0
 
-    y = np.array([neuron["E_L"],neuron["E_L"],0])
+    y = np.array([neuron["E_L"], neuron["E_L"], 0.0, 0.0])
 
     vals = {'g':0.0,
             'syn_pots_sum':0.0,
@@ -48,6 +49,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
             'V_w_star':0.0,
             'dendr_pred':0.0,
             'h':0.0,
+            'PIV': 0.0,
             'dendr_spike':0.0,
             'weight':weight,
             'weight_update':0.0,
@@ -63,8 +65,8 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
         syn_pots_sum = np.sum(np.exp(-(curr_t - pre_spikes[pre_spikes <= curr_t])/neuron['tau_s']))
 
-        args=(curr_t-last_spike, g_E_D, syn_pots_sum, I_ext(curr_t), neuron,)
-        y = integrate.odeint(urb_senn_rhs, y, np.array([curr_t,curr_t+dt]),hmax=dt,args=args)[1,:]
+        args=(curr_t-last_spike, g_E_D, syn_pots_sum, I_ext(curr_t), neuron, learn, PIV,)
+        y = integrate.odeint(urb_senn_rhs, y, np.array([curr_t, curr_t+dt]), hmax=dt, args=args)[1,:]
 
         curr_t = curr_t + dt
 
@@ -85,7 +87,9 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
         if dendr_spike:
             last_spike_dendr = curr_t
 
-        weight_update = learn['eta']*(neuron['delta_factor']*float(dendr_spike) - dt*dendr_pred)*h*y[2]
+        PIV = (neuron['delta_factor']*float(dendr_spike) - dt*dendr_pred)*h*y[2]
+
+        weight_update = learn['eta']*y[3]
         weight += weight_update
 
         weight = normalizer(weight)
@@ -97,6 +101,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
                 'V_w_star':V_w_star,
                 'dendr_pred':dendr_pred,
                 'h':h,
+                'PIV': PIV,
                 'dendr_spike':float(dendr_spike),
                 'weight':weight,
                 'weight_update':weight_update,

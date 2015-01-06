@@ -1,6 +1,7 @@
 from model import phi, phi_prime
 import numpy as np
 from IPython import embed
+from helper import get_default
 
 
 def get_all_save_keys():
@@ -11,6 +12,7 @@ def get_all_save_keys():
             'V_w_star',
             'dendr_pred',
             'h',
+            'PIV',
             'dendr_spike',
             'weight',
             'weight_update',
@@ -19,11 +21,11 @@ def get_all_save_keys():
 def fixed_spiker(spikes):
     return lambda curr_t, dt, **kwargs: spikes.shape[0] > 0 and np.min(np.abs(curr_t-spikes)) < dt/2
 
-def phi_spiker(phi_params=None):
-    if phi_params is None:
-        phi_params = get_default_phi()
+def phi_spiker(neuron=None):
+    if neuron is None:
+        neuron = get_default("neuron")
 
-    return lambda y, dt, **kwargs: phi(y[0])*dt <= np.random.rand()
+    return lambda y, dt, **kwargs: phi(y[0], neuron)*dt >= np.random.rand()
 
 def inst_backprop(curr_t, last_spike, **kwargs):
     return curr_t==last_spike
