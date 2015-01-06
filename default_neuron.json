@@ -15,9 +15,8 @@
   "t_fall": 3.0,
   "delta_factor": 1.0,
   "phi": {
-    "thresh": 15.0,
-    "k": 1.0,
-    "r_max": 0.3,
-    "beta": 6.0
+    "function": "exp",
+    "a": 0.9,
+    "r0": 0.01
   }
 }

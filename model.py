@@ -1,4 +1,5 @@
 import numpy as np
+from exceptions import NotImplementedError
 
 
 def get_spike_currents(U, t_post_spike, neuron):
@@ -10,19 +11,27 @@ def get_spike_currents(U, t_post_spike, neuron):
     return current
 
 def phi(U, neuron):
-    thresh = neuron['E_I'] - neuron['E_K']
-    shift = neuron['E_L']
-
     phi_params = neuron['phi']
-    return phi_params['r_max']/(1+phi_params['k']*np.exp(phi_params['beta']*(1-(U-shift)/thresh)))
+    if phi_params['function'] == 'exp':
+        return phi_params['r0']*np.exp(phi_params['a']*U)
+    elif phi_params['function'] == 'sigm':
+        thresh = neuron['E_I'] - neuron['E_K']
+        shift = neuron['E_L']
+        return phi_params['r_max']/(1+phi_params['k']*np.exp(phi_params['beta']*(1-(U-shift)/thresh)))
+    else:
+        raise NotImplementedError
 
 def phi_prime(U, neuron):
-    thresh = neuron['E_I'] - neuron['E_K']
-    shift = neuron['E_L']
-
     phi_params = neuron['phi']
-    exp_term = np.exp(phi_params['beta']*(1-(U-shift)/thresh))
-    return phi_params['beta']*exp_term*phi_params['k']*phi_params['r_max']/(((1+exp_term*phi_params['k'])**2)*thresh)
+    if phi_params['function'] == 'exp':
+        return phi_params['a']
+    elif phi_params['function'] == 'sigm':
+        thresh = neuron['E_I'] - neuron['E_K']
+        shift = neuron['E_L']
+        exp_term = np.exp(phi_params['beta']*(1-(U-shift)/thresh))
+        return phi_params['beta']*exp_term*phi_params['k']*phi_params['r_max']/(((1+exp_term*phi_params['k'])**2)*thresh)
+    else:
+        raise NotImplementedError
 
 def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron):
     # y=[U,V,dVdw]
