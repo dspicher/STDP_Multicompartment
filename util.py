@@ -47,7 +47,7 @@ def get_freq_spiker(f_ref, thresh):
 def step_current(steps):
     return lambda t: steps[steps[:,0]<=t,1][-1]
 
-def periodic_current(first, interval, width, dc_on, dc_off=0.0):
+def get_periodic_current(first, interval, width, dc_on, dc_off=0.0):
     def I_ext(t):
         if np.abs(t%interval - first) <= width/2 or np.isclose(first - t%interval, width/2):
             if np.isclose(t%interval,first+width/2):

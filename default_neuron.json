@@ -9,14 +9,14 @@
   "g_S": 0.5,
   "E_E": 0.0,
   "E_I": -75.0,
-  "tau_ref": 4.0,
+  "tau_ref": 10.0,
   "tau_s": 3,
   "t_rise": 1.0,
   "t_fall": 3.0,
   "delta_factor": 1.0,
   "phi": {
     "function": "exp",
-    "a": 1.0,
+    "a": 0.3,
     "r0": 0.001,
     "shift": -60.0
   }
