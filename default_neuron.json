@@ -16,7 +16,7 @@
   "delta_factor": 1.0,
   "phi": {
     "function": "exp",
-    "a": 4.0,
+    "a": 1.0,
     "r0": 0.001,
     "shift": -60.0
   }
