@@ -49,11 +49,8 @@ def step_current(steps):
 
 def get_periodic_current(first, interval, width, dc_on, dc_off=0.0):
     def I_ext(t):
-        if np.abs(t%interval - first) <= width/2 or np.isclose(first - t%interval, width/2):
-            if np.isclose(t%interval,first+width/2):
-                return dc_off
-            else:
-                return dc_on
+        if t >= first and np.mod(t-first+width/2,interval) < width:
+            return dc_on
         else:
             return dc_off
     return I_ext
