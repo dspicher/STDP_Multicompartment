@@ -25,7 +25,7 @@ def phi(U, neuron):
 def phi_prime(U, neuron):
     phi_params = neuron['phi']
     if phi_params['function'] == 'exp':
-        return phi_params['a']
+        return phi_params['a']*phi_params['r0']*np.exp(phi_params['a']*(U-phi_params['shift']))
     elif phi_params['function'] == 'sigm':
         thresh = neuron['E_I'] - neuron['E_K']
         shift = neuron['E_L']
@@ -35,17 +35,27 @@ def phi_prime(U, neuron):
         raise NotImplementedError
 
 def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron, learn, PIV):
-    # y=[U,V,dVdw,deltaW]
-    dy = np.zeros(4)
+    (U, V, V_w_star, dV_dw, dV_w_star_dw, Delta) = tuple(y)
+    dy = np.zeros(6)
 
-    dy[0] = -neuron['g_L']*(y[0]-neuron['E_L']) + neuron['g_D']*(y[1]-y[0]) + I_ext
+    # U derivative
+    dy[0] = -neuron['g_L']*(U-neuron['E_L']) + neuron['g_D']*(V-U) + I_ext
     if t_post_spike <= neuron['t_fall']:
-        dy[0] = dy[0] + get_spike_currents(y[0],t_post_spike, neuron)
+        dy[0] = dy[0] + get_spike_currents(U,t_post_spike, neuron)
 
-    dy[1] = -neuron['g_L']*(y[1]-neuron['E_L']) + neuron['g_S']*(y[0]-y[1]) + g_E_D*(neuron['E_E']-y[1])
+    # V derivative
+    dy[1] = -neuron['g_L']*(y[1]-neuron['E_L']) + neuron['g_S']*(U-V) + g_E_D*(neuron['E_E']-V)
 
-    dy[2] = -(neuron['g_L']+(neuron['g_S']*neuron['g_L'])/(neuron['g_D']+neuron['g_L'])+g_E_D)*y[2] + (neuron['E_E']-y[1])*syn_pots_sum
+    # V_w_star derivative
+    dy[2] = -neuron['g_L']*V_w_star + neuron['g_D']*(V-V_w_star)
 
-    dy[3] = (PIV - y[3])/learn['tau_delta']
+    # dV_dw derivative
+    dy[3] = -(neuron['g_L']+neuron['g_S']+g_E_D)*dV_dw + neuron['g_S']*dV_w_star_dw + (neuron['E_E']-V)*syn_pots_sum
+
+    # dV_w_star_dw derivative
+    dy[4] = -(neuron['g_L'] + neuron['g_D'])*dV_w_star_dw + neuron['g_D']*dV_dw
+
+    # Delta derivative
+    dy[5] = (PIV - Delta)/learn['tau_delta']
 
     return dy

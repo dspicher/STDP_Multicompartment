@@ -30,23 +30,21 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
     n_steps = int((t_end-t_start)/dt)+1
 
-    curr_t = t_start
-    weight = learn['eps']
+    curr = {'t':t_start,
+            'y': np.array([neuron["E_L"], neuron["E_L"], neuron['g_D']/(neuron['g_D']+neuron['g_L'])*neuron["E_L"], 0.0, 0.0, 0.0])}
+    last_spike = {'t': float("-inf"), 'y':curr['y']}
+    last_spike_dendr = {'t': float("-inf"), 'y':curr['y']}
 
-    last_spike = float("-inf")
-    last_spike_dendr = float("-inf")
+    weight = learn['eps']
 
     g_E_D = 0.0
     syn_pots_sum = 0.0
     PIV = 0.0
 
-    y = np.array([neuron["E_L"], neuron["E_L"], 0.0, 0.0])
-
     vals = {'g':0.0,
             'syn_pots_sum':0.0,
-            'y':y,
+            'y':curr['y'],
             'spike':0.0,
-            'V_w_star':0.0,
             'dendr_pred':0.0,
             'h':0.0,
             'PIV': 0.0,
@@ -56,58 +54,56 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
             'I_ext':0.0}
 
     for acc in accumulators:
-        acc.add(curr_t, **vals)
+        acc.add(curr['t'], **vals)
 
-    while curr_t < t_end - dt/2:
+    while curr['t'] < t_end - dt/2:
 
-        g_E_D = g_E_D + np.sum(np.isclose(pre_spikes, curr_t))*weight
+        g_E_D = g_E_D + np.sum(np.isclose(pre_spikes, curr['t']))*weight
         g_E_D = g_E_D - dt*g_E_D/neuron['tau_s']
 
-        syn_pots_sum = np.sum(np.exp(-(curr_t - pre_spikes[pre_spikes <= curr_t])/neuron['tau_s']))
+        syn_pots_sum = np.sum(np.exp(-(curr['t'] - pre_spikes[pre_spikes <= curr['t']])/neuron['tau_s']))
 
-        args=(curr_t-last_spike, g_E_D, syn_pots_sum, I_ext(curr_t), neuron, learn, PIV,)
-        y = integrate.odeint(urb_senn_rhs, y, np.array([curr_t, curr_t+dt]), hmax=dt, args=args)[1,:]
+        args=(curr['t']-last_spike['t'], g_E_D, syn_pots_sum, I_ext(curr['t']), neuron, learn, PIV,)
+        curr['y'] = integrate.odeint(urb_senn_rhs, curr['y'], np.array([curr['t'], curr['t']+dt]), hmax=dt, args=args)[1,:]
 
-        curr_t = curr_t + dt
+        curr['t'] += dt
 
-        if curr_t - last_spike < neuron['tau_ref']:
+        if curr['t'] - last_spike['t'] < neuron['tau_ref']:
             does_spike = False
         else:
-            does_spike = spiker(y=y, curr_t=curr_t, dt=dt)
+            does_spike = spiker(curr=curr, dt=dt)
 
         if does_spike:
-            last_spike = curr_t
+            last_spike = {'t': curr['t'], 'y': curr['y']}
 
-        V_w_star = neuron['g_D']/(neuron['g_D']+neuron['g_L'])*y[1]
-        dendr_pred = phi(V_w_star, neuron)
-        h = phi_prime(V_w_star, neuron)/phi(V_w_star, neuron)
+        dendr_pred = phi(curr['y'][2], neuron)
+        h = phi_prime(curr['y'][2], neuron)/phi(curr['y'][2], neuron)
 
-        dendr_spike = spiker_dendr(y=y, curr_t=curr_t, thresh=thresh, last_spike=last_spike, last_spike_dendr=last_spike_dendr)
+        dendr_spike = spiker_dendr(curr=curr, last_spike=last_spike, last_spike_dendr=last_spike_dendr)
 
         if dendr_spike:
-            last_spike_dendr = curr_t
+            last_spike_dendr = {'t': curr['t'], 'y': curr['y']}
 
-        PIV = (neuron['delta_factor']*float(dendr_spike) - dt*dendr_pred)*h*y[2]
+        PIV = (neuron['delta_factor']*float(dendr_spike)/dt - dendr_pred)*h*curr['y'][4]
 
-        weight_update = learn['eta']*y[3]
+        weight_update = learn['eta']*curr['y'][5]
         weight += weight_update
 
         weight = normalizer(weight)
 
         vals = {'g':g_E_D,
                 'syn_pots_sum':syn_pots_sum,
-                'y':y,
+                'y':curr['y'],
                 'spike':float(does_spike),
-                'V_w_star':V_w_star,
                 'dendr_pred':dendr_pred,
                 'h':h,
                 'PIV': PIV,
                 'dendr_spike':float(dendr_spike),
                 'weight':weight,
                 'weight_update':weight_update,
-                'I_ext':I_ext(curr_t - dt)}
+                'I_ext':I_ext(curr['t'] - dt)}
 
         for acc in accumulators:
-            acc.add(curr_t, **vals)
+            acc.add(curr['t'], **vals)
 
     return accumulators

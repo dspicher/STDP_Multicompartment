@@ -3,13 +3,11 @@ import numpy as np
 from IPython import embed
 from helper import get_default
 
-
 def get_all_save_keys():
     return ['g',
             'syn_pots_sum',
             'y',
             'spike',
-            'V_w_star',
             'dendr_pred',
             'h',
             'PIV',
@@ -18,20 +16,33 @@ def get_all_save_keys():
             'weight_update',
             'I_ext']
 
-def fixed_spiker(spikes):
-    return lambda curr_t, dt, **kwargs: spikes.shape[0] > 0 and np.min(np.abs(curr_t-spikes)) < dt/2
+def get_fixed_spiker(spikes):
+    return lambda curr, dt, **kwargs: spikes.shape[0] > 0 and np.min(np.abs(curr['t']-spikes)) < dt/2
 
-def phi_spiker(neuron=None):
+def get_phi_spiker(neuron=None):
     if neuron is None:
         neuron = get_default("neuron")
 
-    return lambda y, dt, **kwargs: phi(y[0], neuron)*dt >= np.random.rand()
+    return lambda curr, dt, **kwargs: phi(curr['y'][0], neuron)*dt >= np.random.rand()
 
-def inst_backprop(curr_t, last_spike, **kwargs):
-    return curr_t==last_spike
+def get_inst_backprop():
+    def inst_backprop(curr, last_spike, **kwargs):
+        return np.isclose(curr['t'], last_spike['t'])
+    return inst_backprop
 
-def dendr_spike_det(y, curr_t, last_spike_dendr, thresh, tau=10.0, **kwargs):
-    return y[1] > thresh and (curr_t-last_spike_dendr > tau)
+def get_dendr_spike_det(thresh, tau_ref=10.0):
+    def dendr_spike_det(curr, last_spike_dendr, **kwargs):
+        return curr['y'][1] > thresh and (curr['t']-last_spike_dendr['t'] > tau_ref)
+    return dendr_spike_det
+
+def get_freq_spiker(f_ref, thresh):
+    def freq_spiker(curr, last_spike_dendr, **kwargs):
+        if not np.isfinite(last_spike_dendr['t']):
+            return curr['y'][1] > thresh
+        else:
+            t_ref = f_ref(last_spike_dendr['y'][1])
+            return curr['y'][1] > thresh and (curr['t']-last_spike_dendr['t'] > t_ref)
+    return freq_spiker
 
 def step_current(steps):
     return lambda t: steps[steps[:,0]<=t,1][-1]

@@ -17,7 +17,7 @@ class BooleanAccumulator:
 class PeriodicAccumulator:
     def _get_size(self, key):
         if key=='y':
-            return 4
+            return 6
         else:
             return 1
 
