@@ -27,7 +27,6 @@ def task((repetition_i,p)):
         'pre_spikes': np.arange(first_spike,end,interval)+p['delta'],
         'I_ext': get_periodic_current(first_spike, interval, 0.8, 100.0)
         }
-    print my_s
 
     accs = [PeriodicAccumulator(['weight'], my_s,interval=20), BooleanAccumulator(['spike', 'dendr_spike'])]
 
@@ -55,4 +54,4 @@ params['r0factor'] = [0.5,1.0,2.0]
 
 file_prefix = 'new_model_stdp_initial'
 
-do(task, params, file_prefix, prompt=False, withmp=False)
+do(task, params, file_prefix)
