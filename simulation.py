@@ -20,7 +20,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
         learn = get_default("learn")
 
     if normalizer is None:
-        normalizer = lambda x: np.max(x,0.0)
+        normalizer = lambda x: np.max(np.array([x,0.0]))
 
     I_ext = sim.get('I_ext', step_current(np.array([[sim['start'],0.0]])))
 
@@ -93,6 +93,8 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
         weight += weight_update
 
         weight = normalizer(weight)
+        if weight < 0:
+            embed()
 
         vals = {'g':g_E_D,
                 'syn_pots_sum':syn_pots_sum,
