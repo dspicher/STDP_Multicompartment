@@ -19,13 +19,13 @@ def task((repetition_i,p)):
 
     first_spike = 100.0
     interval = 1000.0/p['freq']
-    end = 5/p['freq']*1000.0+600.0
+    end = 20/p['freq']*1000.0+600.0
     my_s = {
         'start': 0.0,
         'end': end,
         'dt': 0.05,
         'pre_spikes': np.arange(first_spike,end,interval)+p['delta'],
-        'I_ext': get_periodic_current(first_spike, interval, 0.8, 100.0)
+        'I_ext': get_periodic_current(first_spike, interval, 1.0, 100.0)
         }
 
     accs = [PeriodicAccumulator(get_all_save_keys(), my_s), BooleanAccumulator(['spike', 'dendr_spike'])]
@@ -54,4 +54,4 @@ params['r0factor'] = [2.0]
 
 file_prefix = 'numeric_instability'
 
-do(task, params, file_prefix)
+do(task, params, file_prefix, prompt=False)
