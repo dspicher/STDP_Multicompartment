@@ -10,14 +10,14 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     np.random.seed(kwargs.get('seed',0))
 
     if neuron is None:
-        neuron = get_default("neuron")
+        neuron = get_default('neuron')
 
     # dendritic spike threshold
     # heuristic formular which gives one for roberts shifted system
-    thresh = neuron["E_L"] + (neuron["E_E"] - neuron["E_L"]) / (4.0+2.0/3.0)
+    thresh = neuron['E_L'] + (neuron['E_E'] - neuron['E_L']) / (4.0+2.0/3.0)
 
     if learn is None:
-        learn = get_default("learn")
+        learn = get_default('learn')
 
     if normalizer is None:
         normalizer = lambda x: np.max(np.array([x,0.0]))
@@ -31,9 +31,9 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     n_steps = int((t_end-t_start)/dt)+1
 
     curr = {'t':t_start,
-            'y': np.array([neuron["E_L"], neuron["E_L"], neuron['g_D']/(neuron['g_D']+neuron['g_L'])*neuron["E_L"], 0.0, 0.0, 0.0])}
-    last_spike = {'t': float("-inf"), 'y':curr['y']}
-    last_spike_dendr = {'t': float("-inf"), 'y':curr['y']}
+            'y': np.array([neuron['E_L'], neuron['E_L'], neuron['g_D']/(neuron['g_D']+neuron['g_L'])*neuron['E_L'], 0.0, 0.0, 0.0])}
+    last_spike = {'t': float('-inf'), 'y':curr['y']}
+    last_spike_dendr = {'t': float('-inf'), 'y':curr['y']}
 
     weight = learn['eps']
 
@@ -77,8 +77,8 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
             last_spike = {'t': curr['t'], 'y': curr['y']}
 
         dendr_pred = phi(curr['y'][2], neuron)
-        if neuron["phi"]["function"] == 'exp':
-            h = neuron["phi"]["a"]
+        if neuron['phi']['function'] == 'exp':
+            h = neuron['phi']['a']
         else:
             h = phi_prime(curr['y'][2], neuron)/phi(curr['y'][2], neuron)
 
