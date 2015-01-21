@@ -19,7 +19,7 @@ def task((repetition_i,p)):
 
     first_spike = 100.0
     interval = 1000.0/p['freq']
-    end = 20/p['freq']*1000.0+600.0
+    end = 10/p['freq']*1000.0+600.0
     my_s = {
         'start': 0.0,
         'end': end,
@@ -28,7 +28,7 @@ def task((repetition_i,p)):
         'I_ext': get_periodic_current(first_spike, interval, 0.8, 100.0)
         }
 
-    accs = [PeriodicAccumulator(get_all_save_keys(), my_s,interval=10), BooleanAccumulator(['spike', 'dendr_spike'])]
+    accs = [PeriodicAccumulator(get_all_save_keys(), my_s,interval=1), BooleanAccumulator(['spike', 'dendr_spike'])]
 
     accums = run(my_s, get_phi_spiker(), get_inst_backprop(), accs, seed=int(time.time()), learn=learn)
 
@@ -38,7 +38,7 @@ params = OrderedDict()
 params['eta_factor'] = [1e-3]
 params['eps'] = [1e-3]
 params['delta'] = np.array([-30,-20,-10,-5,5,10,20,30])
-params['freq'] = [1,2,5,10]
+params['freq'] = [1,5]
 
 file_prefix = 'new_model_inspect_stdp'
 
