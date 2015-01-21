@@ -12,6 +12,7 @@ def get_all_save_keys():
             'h',
             'PIV',
             'dendr_spike',
+            'pre_spike',
             'weight',
             'weight_update',
             'I_ext']

@@ -45,6 +45,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
             'h':0.0,
             'PIV': 0.0,
             'dendr_spike':0.0,
+            'pre_spike':0.0,
             'weight':weight,
             'weight_update':0.0,
             'I_ext':0.0}
@@ -53,8 +54,10 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
         acc.add(curr['t'], **vals)
 
     while curr['t'] < t_end - dt/2:
-
-        g_E_D = g_E_D + np.sum(np.isclose(pre_spikes, curr['t'], rtol=1e-10, atol=1e-10))*weight
+        
+        curr_pre = np.sum(np.isclose(pre_spikes, curr['t'], rtol=1e-10, atol=1e-10))
+        
+        g_E_D = g_E_D + curr_pre*weight
         g_E_D = g_E_D - dt*g_E_D/neuron['tau_s']
 
         syn_pots_sum = np.sum(np.exp(-(curr['t'] - pre_spikes[pre_spikes <= curr['t']])/neuron['tau_s']))
@@ -100,6 +103,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
                 'h':h,
                 'PIV': PIV,
                 'dendr_spike':float(dendr_spike),
+                'pre_spike':curr_pre,
                 'weight':weight,
                 'weight_update':weight_update,
                 'I_ext':I_ext(curr['t'] - dt)}
