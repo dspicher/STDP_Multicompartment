@@ -29,11 +29,11 @@ def task((repetition_i,p)):
         }
 
     accs = [PeriodicAccumulator(['weight'], my_s,interval=10), BooleanAccumulator(['spike', 'dendr_spike'])]
-	
-	if p['d_s'] == 'bp':
-		accums = run(my_s, get_phi_spiker(), get_inst_backprop(), accs, seed=int(time.time()), learn=learn)
-	else:
-		accums = run(my_s, get_phi_spiker(), get_dendr_spike_det(thresh=-45.0), accs, seed=int(time.time()), learn=learn)
+    
+    if p['d_s'] == 'bp':
+        accums = run(my_s, get_phi_spiker(), get_inst_backprop(), accs, seed=int(time.time()), learn=learn)
+    else:
+        accums = run(my_s, get_phi_spiker(), get_dendr_spike_det(thresh=-45.0), accs, seed=int(time.time()), learn=learn)
 
     dump(accums,p['ident'])
 
