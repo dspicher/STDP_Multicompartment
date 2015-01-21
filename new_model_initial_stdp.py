@@ -29,16 +29,20 @@ def task((repetition_i,p)):
         }
 
     accs = [PeriodicAccumulator(['weight'], my_s,interval=10), BooleanAccumulator(['spike', 'dendr_spike'])]
-
-    accums = run(my_s, get_phi_spiker(), get_inst_backprop(), accs, seed=int(time.time()), learn=learn)
+	
+	if p['d_s'] == 'bp':
+		accums = run(my_s, get_phi_spiker(), get_inst_backprop(), accs, seed=int(time.time()), learn=learn)
+	else:
+		accums = run(my_s, get_phi_spiker(), get_dendr_spike_det(thresh=-45.0), accs, seed=int(time.time()), learn=learn)
 
     dump(accums,p['ident'])
 
 params = OrderedDict()
+params['d_s'] = ['bp','sd']
 params['eta_factor'] = [1e-2,1e-3]
 params['eps'] = [1e-2,1e-3,1e-4]
-params['delta'] = np.array([-30,-20,-10,-5,5,10,20,30])
-params['freq'] = [1,2,5,10]
+params['delta'] = np.array([-30,-20,-10,-5,-2,-1,1,2,5,10,20,30])
+params['freq'] = [1,2,5,10,20]
 
 file_prefix = 'new_model_stdp_initial'
 
