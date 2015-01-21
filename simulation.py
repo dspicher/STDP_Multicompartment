@@ -12,10 +12,6 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     if neuron is None:
         neuron = get_default('neuron')
 
-    # dendritic spike threshold
-    # heuristic formular which gives one for roberts shifted system
-    thresh = neuron['E_L'] + (neuron['E_E'] - neuron['E_L']) / (4.0+2.0/3.0)
-
     if learn is None:
         learn = get_default('learn')
 
