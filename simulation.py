@@ -34,37 +34,19 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     g_E_D = 0.0
     syn_pots_sum = 0.0
     PIV = 0.0
-
-    vals = {'g':0.0,
-            'syn_pots_sum':0.0,
-            'y':curr['y'],
-            'spike':0.0,
-            'dendr_pred':0.0,
-            'h':0.0,
-            'PIV': 0.0,
-            'dendr_spike':0.0,
-            'pre_spike':0.0,
-            'weight':weight,
-            'weight_update':0.0,
-            'I_ext':0.0}
-
-    for acc in accumulators:
-        acc.add(curr['t'], **vals)
+    weight_update = 0.0
 
     while curr['t'] < t_end - dt/2:
-        
+
+        # is there a presynaptic spike at curr['t']?
         curr_pre = np.sum(np.isclose(pre_spikes, curr['t'], rtol=1e-10, atol=1e-10))
-        
+
         g_E_D = g_E_D + curr_pre*weight
         g_E_D = g_E_D - dt*g_E_D/neuron['tau_s']
 
         syn_pots_sum = np.sum(np.exp(-(curr['t'] - pre_spikes[pre_spikes <= curr['t']])/neuron['tau_s']))
 
-        args=(curr['t']-last_spike['t'], g_E_D, syn_pots_sum, I_ext(curr['t']), neuron, learn, PIV,)
-        curr['y'] = integrate.odeint(urb_senn_rhs, curr['y'], np.array([curr['t'], curr['t']+dt]), hmax=dt, args=args)[1,:]
-
-        curr['t'] += dt
-
+        # is there a postsynaptic spike at curr['t']?
         if curr['t'] - last_spike['t'] < neuron['tau_ref']:
             does_spike = False
         else:
@@ -73,26 +55,31 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
         if does_spike:
             last_spike = {'t': curr['t'], 'y': curr['y']}
 
+        # does the dendrite detect a spike?
+        dendr_spike = spiker_dendr(curr=curr, last_spike=last_spike, last_spike_dendr=last_spike_dendr)
+
+        if dendr_spike:
+            last_spike_dendr = {'t': curr['t'], 'y': curr['y']}
+
+        # dendritic prediction
         dendr_pred = phi(curr['y'][2], neuron)
         if neuron['phi']['function'] == 'exp':
             h = neuron['phi']['a']
         else:
             h = phi_prime(curr['y'][2], neuron)/phi(curr['y'][2], neuron)
 
-        dendr_spike = spiker_dendr(curr=curr, last_spike=last_spike, last_spike_dendr=last_spike_dendr)
-
-        if dendr_spike:
-            last_spike_dendr = {'t': curr['t'], 'y': curr['y']}
-
+        # update weight
         PIV = (neuron['delta_factor']*float(dendr_spike)/dt - dendr_pred)*h*curr['y'][4]
-
         weight_update = learn['eta']*curr['y'][5]
-        weight += weight_update
+        weight = normalizer(weight + weight_update)
 
-        weight = normalizer(weight)
-        if weight < 0:
-            embed()
+        # advance state: integrate from curr['t'] to curr['t']+dt
+        curr_I = I_ext(curr['t'])
+        args=(curr['t']-last_spike['t'], g_E_D, syn_pots_sum, curr_I, neuron, learn, PIV,)
+        curr['y'] = integrate.odeint(urb_senn_rhs, curr['y'], np.array([curr['t'], curr['t']+dt]), hmax=dt, args=args)[1,:]
+        curr['t'] += dt
 
+        # save state
         vals = {'g':g_E_D,
                 'syn_pots_sum':syn_pots_sum,
                 'y':curr['y'],
@@ -104,9 +91,9 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
                 'pre_spike':curr_pre,
                 'weight':weight,
                 'weight_update':weight_update,
-                'I_ext':I_ext(curr['t'] - dt)}
-
+                'I_ext':curr_I}
         for acc in accumulators:
             acc.add(curr['t'], **vals)
+
 
     return accumulators
