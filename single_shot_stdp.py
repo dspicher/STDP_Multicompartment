@@ -11,37 +11,42 @@ import time
 
 
 def task((repetition_i,p)):
+	
+	res = {}
+	
+	for delta in np.array([-30,-25,-20,-15,-10,-5,-2,-1,1,2,5,10,15,20,25,30]):
 
-    learn = {}
-    learn['eta'] = p['eps']*p['eta_factor']
-    learn['eps'] = p['eps']
-    learn['tau_delta'] = 2.0
+		learn = {}
+		learn['eta'] = p['eps']*p['eta_factor']
+		learn['eps'] = p['eps']
+		learn['tau_delta'] = p['tau_delta']
 
-    neuron = get_default("neuron")
-    neuron["phi"]["a"] = p["a"]
+		neuron = get_default("neuron")
+		neuron["phi"]["a"] = p["a"]
 
-    my_s = {
-        'start': 0.0,
-        'end': 600.0,
-        'dt': 0.05,
-        'pre_spikes': np.array([250.0]),
-        'I_ext': get_periodic_current(250.0, 1000.0, 0.8, 100.0)
-        }
+		my_s = {
+			'start': 0.0,
+			'end': 600.0,
+			'dt': 0.05,
+			'pre_spikes': np.array([250.0+delta]),
+			'I_ext': get_periodic_current(250.0, 1000.0, 0.8, 100.0)
+			}
 
-    accs = [PeriodicAccumulator(get_all_save_keys(), my_s,interval=1), BooleanAccumulator(['spike', 'dendr_spike', 'pre_spike'])]
+		accs = [PeriodicAccumulator(get_all_save_keys(), my_s,interval=1), BooleanAccumulator(['spike', 'dendr_spike', 'pre_spike'])]
 
-    if p['d_s'] == 'bp':
-        accums = run(my_s, get_phi_spiker(), get_inst_backprop(), accs, seed=int(time.time()), learn=learn, neuron=neuron)
-    else:
-        accums = run(my_s, get_phi_spiker(), get_dendr_spike_det(thresh=-45.0), accs, seed=int(time.time()), learn=learn, neuron=neuron)
-
-    dump(accums,p['ident'])
+		if p['d_s'] == 'bp':
+			accums = run(my_s, get_phi_spiker(), get_inst_backprop(), accs, seed=int(time.time()), learn=learn, neuron=neuron)
+		else:
+			accums = run(my_s, get_phi_spiker(), get_dendr_spike_det(thresh=-45.0), accs, seed=int(time.time()), learn=learn, neuron=neuron)
+		
+		res[delta] = accums
+		
+	dump(res,p['ident'])
 
 params = OrderedDict()
 params['d_s'] = ['bp','sd']
 params['eta_factor'] = [1e-2,1e-3]
 params['eps'] = [1e-3,1e-4]
-params['delta'] = np.array([-30,-25,-20,-15,-10,-5,-2,-1,1,2,5,10,15,20,25,30])
 params['tau_delta'] = [2.0,5.0,10.0,20.0]
 params["a"] = [0.3,0.32,0.35,0.4]
 
