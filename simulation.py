@@ -58,7 +58,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
     while curr['t'] < t_end - dt/2:
 
-        g_E_D = g_E_D + np.sum(np.isclose(pre_spikes, curr['t']))*weight
+        g_E_D = g_E_D + np.sum(np.isclose(pre_spikes, curr['t'], rtol=1e-10, atol=1e-10))*weight
         g_E_D = g_E_D - dt*g_E_D/neuron['tau_s']
 
         syn_pots_sum = np.sum(np.exp(-(curr['t'] - pre_spikes[pre_spikes <= curr['t']])/neuron['tau_s']))

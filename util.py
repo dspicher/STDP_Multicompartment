@@ -27,7 +27,7 @@ def get_phi_spiker(neuron=None):
 
 def get_inst_backprop():
     def inst_backprop(curr, last_spike, **kwargs):
-        return np.isclose(curr['t'], last_spike['t'])
+        return np.isclose(curr['t'], last_spike['t'], atol=1e-10, rtol=1e-10)
     return inst_backprop
 
 def get_dendr_spike_det(thresh, tau_ref=10.0):
