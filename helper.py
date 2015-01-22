@@ -45,10 +45,7 @@ class PeriodicAccumulator:
                 self.size = self.size*2
                 
             for key in self.keys:
-                try:
-                    self.res[key][self.j,:] = np.atleast_2d(vals[key])
-                except:
-                    embed()
+                self.res[key][self.j,:] = np.atleast_2d(vals[key])
             self.t[self.j] = curr_t
             
             self.j += 1
