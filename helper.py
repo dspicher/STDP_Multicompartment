@@ -1,4 +1,5 @@
 import numpy as np
+from IPython import embed
 
 def dump(res,ident):
     import cPickle
@@ -13,6 +14,9 @@ class BooleanAccumulator:
         for key in self.keys:
             if vals[key]:
                 self.res[key] = np.append(self.res[key], curr_t)
+                
+    def cleanup(self):
+        pass
 
 class PeriodicAccumulator:
     def _get_size(self, key):
@@ -21,26 +25,40 @@ class PeriodicAccumulator:
         else:
             return 1
 
-    def __init__(self, keys, sim, interval=1):
+    def __init__(self, keys, interval=1, init_size=1024):
         self.keys = keys
         self.i = interval
         self.j = 0
+        self.size = init_size
         self.res = {}
         self.interval = interval
-        eff_steps = np.round((sim['end']-sim['start'])/(interval*sim['dt']))
-        self.t = np.zeros(eff_steps, np.float32)
+        self.t = np.zeros(init_size, np.float32)
         for key in keys:
-            self.res[key] = np.zeros((eff_steps,self._get_size(key)), np.float32)
+            self.res[key] = np.zeros((init_size,self._get_size(key)), np.float32)
 
     def add(self, curr_t, **vals):
         if np.isclose(self.i, self.interval):
+            if self.j == self.size:
+                self.t = np.concatenate((self.t,np.zeros(self.t.shape, np.float32)))
+                for key in self.keys:
+                    self.res[key] = np.vstack((self.res[key],np.zeros(self.res[key].shape, np.float32)))
+                self.size = self.size*2
+                
             for key in self.keys:
-                self.res[key][self.j,:] = np.atleast_2d(vals[key])
-
+                try:
+                    self.res[key][self.j,:] = np.atleast_2d(vals[key])
+                except:
+                    embed()
             self.t[self.j] = curr_t
+            
             self.j += 1
             self.i = 0
         self.i += 1
+        
+    def cleanup(self):
+        self.t = self.t[:self.j]
+        for key in self.keys:
+            self.res[key] = np.squeeze(self.res[key][:self.j,:])
 
 
 def get_default(params):

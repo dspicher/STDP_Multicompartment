@@ -95,5 +95,8 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
         for acc in accumulators:
             acc.add(curr['t'], **vals)
 
-
+    
+    for acc in accumulators:
+        acc.cleanup()
+        
     return accumulators
