@@ -14,7 +14,7 @@ def get_spike_currents(U, t_post_spike, neuron):
 def phi(U, neuron):
     phi_params = neuron['phi']
     if phi_params['function'] == 'exp':
-        return phi_params['r0']*np.exp(phi_params['a']*(U-phi_params['shift']))
+        return np.exp(phi_params['log_pref'] + phi_params['a']*U)
     elif phi_params['function'] == 'sigm':
         shift = neuron['E_L']
         thresh = neuron['E_I'] - neuron['E_K']
@@ -25,7 +25,7 @@ def phi(U, neuron):
 def phi_prime(U, neuron):
     phi_params = neuron['phi']
     if phi_params['function'] == 'exp':
-        return phi_params['a']*phi_params['r0']*np.exp(phi_params['a']*(U-phi_params['shift']))
+        return phi_params['a']*np.exp(phi_params['log_pref'] + phi_params['a']*U)
     elif phi_params['function'] == 'sigm':
         thresh = neuron['E_I'] - neuron['E_K']
         shift = neuron['E_L']
