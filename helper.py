@@ -27,7 +27,7 @@ class PeriodicAccumulator:
         self.j = 0
         self.res = {}
         self.interval = interval
-        eff_steps = np.floor((sim['end']-sim['start'])/(interval*sim['dt']))
+        eff_steps = np.round((sim['end']-sim['start'])/(interval*sim['dt']))
         self.t = np.zeros(eff_steps, np.float32)
         for key in keys:
             self.res[key] = np.zeros((eff_steps,self._get_size(key)), np.float32)
