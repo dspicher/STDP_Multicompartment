@@ -25,7 +25,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     t_start, t_end, dt = sim['start'], sim['end'], sim['dt']
 
     curr = {'t':t_start,
-            'y': np.array([neuron['E_L'], neuron['E_L'], neuron['g_D']/(neuron['g_D']+neuron['g_L'])*neuron['E_L'], 0.0, 0.0, 0.0])}
+            'y': np.array([neuron['E_L'], neuron['E_L'], neuron['g_D']/(neuron['g_D']+neuron['g_L'])*neuron['E_L'], 0.0, 0.0])}
     last_spike = {'t': float('-inf'), 'y':curr['y']}
     last_spike_dendr = {'t': float('-inf'), 'y':curr['y']}
 
@@ -34,6 +34,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     g_E_D = 0.0
     syn_pots_sum = 0.0
     PIV = 0.0
+    delta = 0.0
     weight_update = 0.0
 
     while curr['t'] < t_end - dt/2:
@@ -70,12 +71,13 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
         # update weight
         PIV = (neuron['delta_factor']*float(dendr_spike)/dt - dendr_pred)*h*curr['y'][4]
-        weight_update = learn['eta']*curr['y'][5]
+        delta += dt*(PIV-delta)/learn['tau_delta']
+        weight_update = learn['eta']*delta
         weight = normalizer(weight + weight_update)
 
         # advance state: integrate from curr['t'] to curr['t']+dt
         curr_I = I_ext(curr['t'])
-        args=(curr['t']-last_spike['t'], g_E_D, syn_pots_sum, curr_I, neuron, learn, PIV,)
+        args=(curr['t']-last_spike['t'], g_E_D, syn_pots_sum, curr_I, neuron,)
         curr['y'] = integrate.odeint(urb_senn_rhs, curr['y'], np.array([curr['t'], curr['t']+dt]), hmax=dt, args=args)[1,:]
         curr['t'] += dt
 
@@ -91,6 +93,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
                 'pre_spike':curr_pre,
                 'weight':weight,
                 'weight_update':weight_update,
+                'delta':delta,
                 'I_ext':curr_I}
         for acc in accumulators:
             acc.add(curr['t'], **vals)

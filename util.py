@@ -15,6 +15,7 @@ def get_all_save_keys():
             'pre_spike',
             'weight',
             'weight_update',
+            'delta',
             'I_ext']
 
 def get_fixed_spiker(spikes):

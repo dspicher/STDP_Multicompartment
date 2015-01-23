@@ -34,9 +34,9 @@ def phi_prime(U, neuron):
     else:
         raise NotImplementedError
 
-def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron, learn, PIV):
-    (U, V, V_w_star, dV_dw, dV_w_star_dw, Delta) = tuple(y)
-    dy = np.zeros(6)
+def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron):
+    (U, V, V_w_star, dV_dw, dV_w_star_dw) = tuple(y)
+    dy = np.zeros(5)
 
     # U derivative
     dy[0] = -neuron['g_L']*(U-neuron['E_L']) + neuron['g_D']*(V-U) + I_ext
@@ -54,8 +54,5 @@ def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron, learn, 
 
     # dV_w_star_dw derivative
     dy[4] = -(neuron['g_L'] + neuron['g_D'])*dV_w_star_dw + neuron['g_D']*dV_dw
-
-    # Delta derivative
-    dy[5] = (PIV - Delta)/learn['tau_delta']
 
     return dy
