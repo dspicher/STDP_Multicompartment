@@ -17,7 +17,7 @@
   "phi": {
     "function": "sigm",
     "k": 10.0,
-    "rmax": 0.3,
+    "r_max": 0.3,
     "beta": 6.0
   }
 }
