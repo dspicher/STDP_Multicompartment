@@ -21,7 +21,7 @@ def task((repetition_i,p)):
 
     my_s = {
         'start': 0.0,
-        'end': 2000.0,
+        'end': 5000.0,
         'dt': 0.05,
         'pre_spikes': np.array([]),
         'I_ext': lambda t: get_periodic_current(249.5, 250.0, 1.0, 80.0)(t)
@@ -37,7 +37,7 @@ def task((repetition_i,p)):
     print p['ident']
     print accums[1].res['spike']
 
-    dump(accums,p['ident'])
+    #dump(accums,p['ident'])
 
 params = OrderedDict()
 params['r0'] = [1.5]
