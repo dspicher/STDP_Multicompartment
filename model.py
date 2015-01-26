@@ -17,8 +17,7 @@ def phi(U, neuron):
         return np.exp(phi_params['log_pref'] + phi_params['a']*U)
     elif phi_params['function'] == 'sigm':
         shift = neuron['E_L']
-        thresh = neuron['thresh']
-        return phi_params['r_max']/(1+phi_params['k']*np.exp(phi_params['beta']*(1-(U-shift)/thresh)))
+        return phi_params['r_max']/(1+phi_params['k']*np.exp(phi_params['beta']*(1-(U-shift)/phi_params["thresh"])))
     else:
         raise NotImplementedError
 
@@ -27,10 +26,9 @@ def phi_prime(U, neuron):
     if phi_params['function'] == 'exp':
         return phi_params['a']*np.exp(phi_params['log_pref'] + phi_params['a']*U)
     elif phi_params['function'] == 'sigm':
-        thresh = neuron['thresh']
         shift = neuron['E_L']
-        exp_term = np.exp(phi_params['beta']*(1-(U-shift)/thresh))
-        return phi_params['beta']*exp_term*phi_params['k']*phi_params['r_max']/(((1+exp_term*phi_params['k'])**2)*thresh)
+        exp_term = np.exp(phi_params['beta']*(1-(U-shift)/phi_params["thresh"]))
+        return phi_params['beta']*exp_term*phi_params['k']*phi_params['r_max']/(((1+exp_term*phi_params['k'])**2)*phi_params["thresh"])
     else:
         raise NotImplementedError
 

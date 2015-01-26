@@ -22,8 +22,8 @@ def task((repetition_i,p)):
 		learn['tau_delta'] = p['tau_delta']
 
 		neuron = get_default("neuron")
-		neuron["phi"]["func"] = "sigm"
-		neuron["phi"]['r0'] = p["r0"]
+		neuron["phi"]["function"] = "sigm"
+		neuron["phi"]['r_max'] = p["r0"]
 		neuron["phi"]['k'] = p["k"]
 		neuron["phi"]['beta'] = p["beta_thresh"]
 		neuron["phi"]['thresh'] = p["beta_thresh"]
@@ -39,9 +39,9 @@ def task((repetition_i,p)):
 		while True:
 			accs = [PeriodicAccumulator(get_all_save_keys(), interval=1), BooleanAccumulator(['spike', 'dendr_spike', 'pre_spike'])]
 			if p['d_s'] == 'bp':
-				accums = run(my_s, get_phi_spiker(), get_inst_backprop(), accs, seed=int(time.time()), learn=learn, neuron=neuron)
+				accums = run(my_s, get_phi_spiker(), get_inst_backprop(), accs, seed=int(int(time.time()*1e8)%1e9), learn=learn, neuron=neuron)
 			else:
-				accums = run(my_s, get_phi_spiker(), get_dendr_spike_det(thresh=-45.0), accs, seed=int(time.time()), learn=learn, neuron=neuron)
+				accums = run(my_s, get_phi_spiker(), get_dendr_spike_det(thresh=-45.0), accs, seed=int(int(time.time()*1e8)%1e10), learn=learn, neuron=neuron)
 			spks = accums[1].res['spike']
 			if spks.shape[0] != 1 or abs(spks[0]-250) > 1.0:
 				print p['ident'], spks
