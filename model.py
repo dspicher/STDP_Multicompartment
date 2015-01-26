@@ -16,8 +16,7 @@ def phi(U, neuron):
     if phi_params['function'] == 'exp':
         return np.exp(phi_params['log_pref'] + phi_params['a']*U)
     elif phi_params['function'] == 'sigm':
-        shift = neuron['E_L']
-        return phi_params['r_max']/(1+phi_params['k']*np.exp(phi_params['beta']*(1-(U-shift)/phi_params["thresh"])))
+        return phi_params['r_max']/(1+np.exp(-phi_params['beta']*(U-phi_params['alpha'])))
     else:
         raise NotImplementedError
 
@@ -26,9 +25,9 @@ def phi_prime(U, neuron):
     if phi_params['function'] == 'exp':
         return phi_params['a']*np.exp(phi_params['log_pref'] + phi_params['a']*U)
     elif phi_params['function'] == 'sigm':
-        shift = neuron['E_L']
-        exp_term = np.exp(phi_params['beta']*(1-(U-shift)/phi_params["thresh"]))
-        return phi_params['beta']*exp_term*phi_params['k']*phi_params['r_max']/(((1+exp_term*phi_params['k'])**2)*phi_params["thresh"])
+        num = np.exp((U+phi_params["alpha"])*phi_params["beta"])*phi_params["r_max"]*phi_params["beta"]
+        denom = (np.exp(U*phi_params["beta"]) + np.exp(phi_params["alpha"]*phi_params["beta"]))**2
+        return num/denom
     else:
         raise NotImplementedError
 

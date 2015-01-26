@@ -84,7 +84,7 @@ def do(func, params, file_prefix, prompt=True, **kwargs):
 
     runs, base_str = construct_params(params,file_prefix)
 
-    create_analysis_notebook(nb_descriptors, params, texts, base_str, "_pre")
+    #create_analysis_notebook(nb_descriptors, params, texts, base_str, "_pre")
 
     ts = datetime.datetime.fromtimestamp(time.time())
 
@@ -146,7 +146,37 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
     pickler_cell_str += "data = {tup:get(*tup) for tup in params}"
 
     cells.append(nbf.new_code_cell(pickler_cell_str))
-
+    
+    cells.append(nbf.new_code_cell("from IPython.html.widgets import interact, interactive, fixed\nfrom IPython.html import widgets\nfrom IPython.display import clear_output, display, HTML"))
+    
+    interact = ""
+    interact +="def show_plot(key,"+", ".join(ps.keys())+",y_c,t_min,t_max):\n"
+    interact +="    figure(figsize=(12,5))\n"   
+    interact +="    p = ("+", ".join(ps.keys())+")\n"
+    interact +="    ts = data[p][-30][0][0].t\n"
+    interact +="    mask = np.logical_and(ts>=t_min,ts<=t_max)\n"
+    interact +="    for delta in [-30,-20,-10,10,20,30]:\n"
+    interact +="        if key=='y':\n"
+    interact +="            plot(data[p][delta][0][0].t[mask],data[p][delta][0][0].res[key][mask,y_c])\n"
+    interact +="        else:\n"
+    interact +="            plot(data[p][delta][0][0].t[mask],data[p][delta][0][0].res[key][mask])\n"
+    interact +="    legend([str(a) for a in [-30,-20,-10,10,20,30]],loc=0)"
+    cells.append(nbf.new_code_cell(interact))
+    
+    interact =""
+    interact += "ts = data[params[0]][-10][0][0].t\n"
+    interact += "i = interact(show_plot,\n"
+    interact += "key=widgets.DropdownWidget(description='key',values=['dendr_pred','weight','weight_update', 'PIV', 'y','h']),\n"
+    interact += "t_min=(0,int(np.round(ts[-1]))),\n"
+    interact += "t_max=(0,int(np.round(ts[-1]))),\n"
+    for name, vals in ps.items():
+        rep = repr(vals)
+        if rep[:6] == "array(":
+            rep = rep[6:-1]
+        interact += name + "=widgets.RadioButtonsWidget(description=\'" + name + "\',values=" + rep + "),\n"
+    interact += "y_c=widgets.RadioButtonsWidget(description='y_c',values=range(5)))\n"
+    cells.append(nbf.new_code_cell(interact))
+    
     nb['worksheets'].append(nbf.new_worksheet(cells=cells))
 
     fname = nb_descriptors['simulation file'][:-3] + "_analysis" + name_postfix + ".ipynb"
