@@ -19,7 +19,7 @@ def task((repetition_i,p)):
         learn = {}
         learn['eta'] = 1e-6
         learn['eps'] = 1e-3
-        learn['tau_delta'] = 2.0
+        learn['tau_delta'] = p['tau_delta']
 
         neuron = get_default("neuron")
         neuron["phi"]["function"] = "sigm"
@@ -38,7 +38,7 @@ def task((repetition_i,p)):
         trials = []
         while True:
             seed = int(int(time.time()*1e8)%1e9)
-            accs = [PeriodicAccumulator(get_all_save_keys(), interval=1), BooleanAccumulator(['spike', 'dendr_spike', 'pre_spike'])]
+            accs = [PeriodicAccumulator(get_all_save_keys(), interval=10), BooleanAccumulator(['spike', 'dendr_spike', 'pre_spike'])]
             accums = run(my_s, get_phi_spiker(), get_inst_backprop(), accs, seed=seed, learn=learn, neuron=neuron)
             spks = accums[1].res['spike']
             trials.append((spks,seed))
@@ -52,8 +52,9 @@ def task((repetition_i,p)):
     dump(res,p['ident'])
 
 params = OrderedDict()
-params["alpha"] = np.linspace(-60,-40,11)
-params["beta"] = np.linspace(0.25,3.0,12)
+params['tau_delta'] = [2]
+params["alpha"] = np.linspace(-43,-35,9)
+params["beta"] = np.linspace(0.15,0.4,6)
 
 file_prefix = 'single_shot_stdp_phi_sigm'
 
