@@ -16,8 +16,8 @@
   "delta_factor": 1.0,
   "phi": {
     "function": "sigm",
-    "alpha": -60.0,
-    "r_max": 0.3,
-    "beta": 1.0
+    "alpha": -40.0,
+    "r_max": 1.5,
+    "beta": 0.25
   }
 }
