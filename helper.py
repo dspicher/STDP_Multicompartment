@@ -17,6 +17,9 @@ class BooleanAccumulator:
                 
     def cleanup(self):
         pass
+        
+    def add_variable(self,name,val):
+        self.res['name'] = val
 
 class PeriodicAccumulator:
     def _get_size(self, key):
@@ -56,6 +59,9 @@ class PeriodicAccumulator:
         self.t = self.t[:self.j]
         for key in self.keys:
             self.res[key] = np.squeeze(self.res[key][:self.j,:])
+        
+    def add_variable(self,name,val):
+        self.res['name'] = val
 
 
 def get_default(params):
@@ -134,11 +140,11 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
     pickler_cell_str += "    return cPickle.load(open(\'" + base_str + ".p\'.format(" + ", ".join(ps.keys()) + "),\'rb\'))\n\n\n"
 
 
-
+    
     for name, vals in ps.items():
-        pickler_cell_str += name + "s = " + repr(vals) + "\n"
+        pickler_cell_str += name + "_s = " + repr(vals) + "\n"
 
-    names = [k+"s" for k in ps.keys()   ]
+    names = [k+"_s" for k in ps.keys()   ]
     pickler_cell_str += "\n\n"
     pickler_cell_str += "params = list(product(" + ", ".join(names) + "))"
 

@@ -6,8 +6,9 @@ from util import step_current
 from model import get_spike_currents, phi, phi_prime, urb_senn_rhs
 
 def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normalizer=None, **kwargs):
-
-    np.random.seed(kwargs.get('seed',0))
+    
+    use_seed = kwargs.get('seed',0)
+    np.random.seed(use_seed)
 
     if neuron is None:
         neuron = get_default('neuron')
@@ -101,5 +102,6 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     
     for acc in accumulators:
         acc.cleanup()
+        acc.add_variable('seed',use_seed)
         
     return accumulators
