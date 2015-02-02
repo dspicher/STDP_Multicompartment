@@ -72,6 +72,8 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
         # update weight
         PIV = (neuron['delta_factor']*float(dendr_spike)/dt - dendr_pred)*h*curr['y'][4]
+        pos_PIV = neuron['delta_factor']*float(dendr_spike)/dt*h*curr['y'][4]
+        neg_PIV = -dendr_pred*h*curr['y'][4]
         delta += dt*(PIV-delta)/learn['tau_delta']
         weight_update = learn['eta']*delta
         weight = normalizer(weight + weight_update)
@@ -90,6 +92,8 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
                 'dendr_pred':dendr_pred,
                 'h':h,
                 'PIV': PIV,
+                'pos_PIV': pos_PIV,
+                'neg_PIV': neg_PIV,
                 'dendr_spike':float(dendr_spike),
                 'pre_spike':curr_pre,
                 'weight':weight,

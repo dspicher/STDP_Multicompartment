@@ -11,6 +11,8 @@ def get_all_save_keys():
             'dendr_pred',
             'h',
             'PIV',
+            'pos_PIV',
+            'neg_PIV',
             'dendr_spike',
             'pre_spike',
             'weight',
