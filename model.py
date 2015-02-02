@@ -41,10 +41,10 @@ def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron):
         dy[0] = dy[0] + get_spike_currents(U,t_post_spike, neuron)
 
     # V derivative
-    dy[1] = -neuron['g_L']*(y[1]-neuron['E_L']) + neuron['g_S']*(U-V) + g_E_D*(neuron['E_E']-V)
+    dy[1] = -neuron['g_L']*(V-neuron['E_L']) + neuron['g_S']*(U-V) + g_E_D*(neuron['E_E']-V)
 
     # V_w_star derivative
-    dy[2] = -neuron['g_L']*V_w_star + neuron['g_D']*(V-V_w_star)
+    dy[2] = -neuron['g_L']*(V_w_star-neuron['E_L']) + neuron['g_D']*(V-V_w_star)
 
     # dV_dw derivative
     dy[3] = -(neuron['g_L']+neuron['g_S']+g_E_D)*dV_dw + neuron['g_S']*dV_w_star_dw + (neuron['E_E']-V)*syn_pots_sum

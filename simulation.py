@@ -26,7 +26,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     t_start, t_end, dt = sim['start'], sim['end'], sim['dt']
 
     curr = {'t':t_start,
-            'y': np.array([neuron['E_L'], neuron['E_L'], neuron['g_D']/(neuron['g_D']+neuron['g_L'])*neuron['E_L'], 0.0, 0.0])}
+            'y': np.array([neuron['E_L'], neuron['E_L'], neuron['E_L'], 0.0, 0.0])}
     last_spike = {'t': float('-inf'), 'y':curr['y']}
     last_spike_dendr = {'t': float('-inf'), 'y':curr['y']}
 
