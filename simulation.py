@@ -6,7 +6,7 @@ from util import step_current
 from model import get_spike_currents, phi, phi_prime, urb_senn_rhs
 
 def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normalizer=None, **kwargs):
-    
+
     use_seed = kwargs.get('seed',0)
     np.random.seed(use_seed)
 
@@ -19,14 +19,20 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     if normalizer is None:
         normalizer = lambda x: np.max(np.array([x,0.0]))
 
+    voltage_clamp = kwargs.get('voltage_clamp', False)
+
     I_ext = sim.get('I_ext', step_current(np.array([[sim['start'],0.0]])))
 
     pre_spikes = sim.get('pre_spikes',np.array([]))
 
     t_start, t_end, dt = sim['start'], sim['end'], sim['dt']
 
+    if voltage_clamp:
+        U0 = kwargs['U_clamp']
+    else:
+        U0 = neuron['E_L']
     curr = {'t':t_start,
-            'y': np.array([neuron['E_L'], neuron['E_L'], neuron['E_L'], 0.0, 0.0])}
+            'y': np.array([U0, neuron['E_L'], neuron['E_L'], 0.0, 0.0])}
     last_spike = {'t': float('-inf'), 'y':curr['y']}
     last_spike_dendr = {'t': float('-inf'), 'y':curr['y']}
 
@@ -80,7 +86,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
         # advance state: integrate from curr['t'] to curr['t']+dt
         curr_I = I_ext(curr['t'])
-        args=(curr['t']-last_spike['t'], g_E_D, syn_pots_sum, curr_I, neuron,)
+        args=(curr['t']-last_spike['t'], g_E_D, syn_pots_sum, curr_I, neuron,voltage_clamp)
         curr['y'] = integrate.odeint(urb_senn_rhs, curr['y'], np.array([curr['t'], curr['t']+dt]), hmax=dt, args=args)[1,:]
         curr['t'] += dt
 
@@ -103,9 +109,9 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
         for acc in accumulators:
             acc.add(curr['t'], **vals)
 
-    
+
     for acc in accumulators:
         acc.cleanup()
         acc.add_variable('seed',use_seed)
-        
+
     return accumulators
