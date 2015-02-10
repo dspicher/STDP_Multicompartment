@@ -39,6 +39,15 @@ def get_dendr_spike_det(thresh, tau_ref=10.0):
         return curr['y'][1] > thresh and (curr['t']-last_spike_dendr['t'] > tau_ref)
     return dendr_spike_det
 
+def get_dendr_spike_det_dyn_ref(thresh, tau_ref_0, theta_0):
+    def dendr_spike_det_dyn_ref(curr, last_spike_dendr, **kwargs):
+        if curr['y'][1] < thresh:
+            curr_ref = 0.0
+        else:
+            curr_ref = tau_ref_0*np.exp(-(curr['y'][1]-thresh)/theta_0)
+        return curr['y'][1] > thresh and (curr['t']-last_spike_dendr['t'] > curr_ref)
+    return dendr_spike_det_dyn_ref
+
 def get_freq_spiker(f_ref, thresh):
     def freq_spiker(curr, last_spike_dendr, **kwargs):
         if not np.isfinite(last_spike_dendr['t']):
