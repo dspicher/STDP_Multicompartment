@@ -26,7 +26,6 @@ def get_fixed_spiker(spikes):
 def get_phi_spiker(neuron=None):
     if neuron is None:
         neuron = get_default("neuron")
-
     return lambda curr, dt, **kwargs: phi(curr['y'][0], neuron)*dt >= np.random.rand()
 
 def get_inst_backprop():
@@ -41,21 +40,12 @@ def get_dendr_spike_det(thresh, tau_ref=10.0):
 
 def get_dendr_spike_det_dyn_ref(thresh, tau_ref_0, theta_0):
     def dendr_spike_det_dyn_ref(curr, last_spike_dendr, **kwargs):
-        if curr['y'][1] < thresh:
-            curr_ref = 0.0
-        else:
+        if curr['y'][1] > thresh:
             curr_ref = tau_ref_0*np.exp(-(curr['y'][1]-thresh)/theta_0)
-        return curr['y'][1] > thresh and (curr['t']-last_spike_dendr['t'] > curr_ref)
-    return dendr_spike_det_dyn_ref
-
-def get_freq_spiker(f_ref, thresh):
-    def freq_spiker(curr, last_spike_dendr, **kwargs):
-        if not np.isfinite(last_spike_dendr['t']):
-            return curr['y'][1] > thresh
+            return curr['t']-last_spike_dendr['t'] > curr_ref
         else:
-            t_ref = f_ref(last_spike_dendr['y'][1])
-            return curr['y'][1] > thresh and (curr['t']-last_spike_dendr['t'] > t_ref)
-    return freq_spiker
+            return False
+    return dendr_spike_det_dyn_ref
 
 def step_current(steps):
     return lambda t: steps[steps[:,0]<=t,1][-1]
