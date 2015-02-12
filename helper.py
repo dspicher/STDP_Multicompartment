@@ -66,7 +66,7 @@ class PeriodicAccumulator:
 
 def get_default(params):
     import json
-    return json.load(open('default_{0}.json'.format(params),'r'))
+    return json.load(open('./default/default_{0}.json'.format(params),'r'))
 
 def do(func, params, file_prefix, prompt=True, **kwargs):
     from parallelization import run_tasks
