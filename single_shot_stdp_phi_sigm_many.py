@@ -13,8 +13,8 @@ import time
 def task((repetition_i,p)):
 
     learn = {}
-    learn['eta'] = 1e-3*p["eps"]
-    learn['eps'] = p["eps"]
+    learn['eta'] = 4e-6 # 40 spikes at 1e-7
+    learn['eps'] = 1e-3
     learn['tau_delta'] = 2.0
 
     neuron = get_default("neuron")
@@ -41,15 +41,14 @@ def task((repetition_i,p)):
     dump(accums,p['ident'])
 
 params = OrderedDict()
-params["alpha"] = np.linspace(-60.0,-50.0,3)
-params["beta"] = np.linspace(0.2,0.7,6)
-params["r_max"] = [0.05, 0.1, 0.2, 0.5]
+params["alpha"] = np.linspace(-60.0,-50.0,6)
+params["beta"] = np.linspace(0.2,0.8,7)
+params["r_max"] = [0.05, 0.1, 0.2, 0.3, 0.4]
 params["thresh"]=[-50]
 params["tau_ref_0"]=[10]
 params["theta_0"]=[100]
-params["eps"] = [1e-3,5e-3]
-params["delta"] = [-30,-20,-10,10,20,30]
+params["delta"] = [-50,-40,-30,-20,-10,-5,5,10,20,30,40,50]
 
-file_prefix = 'single_shot_stdp_phi_sigm'
+file_prefix = 'single_shot_stdp_phi_sigm_many'
 
 do(task, params, file_prefix, prompt=False, withmp=True)

@@ -1,4 +1,3 @@
-
 from util import get_all_save_keys, get_periodic_current, get_inst_backprop, get_phi_spiker, get_dendr_spike_det_dyn_ref, get_fixed_spiker
 from helper import do, PeriodicAccumulator, BooleanAccumulator, dump, get_default
 import numpy as np
@@ -9,30 +8,18 @@ from simulation import run
 import matplotlib.pyplot as plt
 import time
 
-good_params = [  (1e-3, -50, 0.20, 0.5),
-            (1e-3, -50, 0.25, 0.5),
-            (1e-3, -50, 0.30, 0.5),
-            (1e-3, -55, 0.3, 0.3),
-            (1e-3, -55, 0.3, 0.35),
-            (1e-3, -55, 0.3, 0.4),
-            (1e-3, -55, 0.5, 0.2),
-            (5e-3, -60, 0.6, 0.2),
-            (5e-3, -60, 0.7, 0.2),
-            (5e-3, -60, 0.4, 0.1)]
-
 def task((repetition_i,p)):
-    (eps, alpha, beta,r_max) = good_params[p["idx"]]
 
     learn = {}
-    learn['eta'] = p["eta"]*eps
-    learn['eps'] = eps
+    learn['eta'] = 2.6e-6 # 40 spikes at 1e-7
+    learn['eps'] = 1e-3
     learn['tau_delta'] = 2.0
 
     neuron = get_default("neuron")
     neuron["phi"]["function"] = "sigm"
-    neuron["phi"]['r_max'] = r_max
-    neuron["phi"]['alpha'] = alpha
-    neuron["phi"]['beta'] = beta
+    neuron["phi"]['r_max'] = p["r_max"]
+    neuron["phi"]['alpha'] = p["alpha"]
+    neuron["phi"]['beta'] = p["beta"]
 
     my_s = {
         'start': 0.0,
@@ -52,10 +39,11 @@ def task((repetition_i,p)):
     dump(accums,p['ident'])
 
 params = OrderedDict()
-params["idx"] = range(10)
-params["eta"] = [1e-4,1e-3]
-params["delta"] = [-30,-20,-10,10,20,30]
+params["alpha"] = [-59]
+params["beta"] = [0.5]
+params["r_max"] = [ 0.15    ]
+params["delta"] = np.linspace(-80,80,81)
 
-file_prefix = 'single_shot_stdp_phi_sigm_prescr_good_params'
+file_prefix = 'nice_stdp_1'
 
 do(task, params, file_prefix, prompt=False, withmp=True)
