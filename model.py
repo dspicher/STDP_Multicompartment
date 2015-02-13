@@ -13,23 +13,13 @@ def get_spike_currents(U, t_post_spike, neuron):
 
 def phi(U, neuron):
     phi_params = neuron['phi']
-    if phi_params['function'] == 'exp':
-        return np.exp(phi_params['log_pref'] + phi_params['a']*U)
-    elif phi_params['function'] == 'sigm':
-        return phi_params['r_max']/(1+np.exp(-phi_params['beta']*(U-phi_params['alpha'])))
-    else:
-        raise NotImplementedError
+    return phi_params['r_max']/(1+np.exp(-phi_params['beta']*(U-phi_params['alpha'])))
 
 def phi_prime(U, neuron):
     phi_params = neuron['phi']
-    if phi_params['function'] == 'exp':
-        return phi_params['a']*np.exp(phi_params['log_pref'] + phi_params['a']*U)
-    elif phi_params['function'] == 'sigm':
-        num = np.exp((U+phi_params["alpha"])*phi_params["beta"])*phi_params["r_max"]*phi_params["beta"]
-        denom = (np.exp(U*phi_params["beta"]) + np.exp(phi_params["alpha"]*phi_params["beta"]))**2
-        return num/denom
-    else:
-        raise NotImplementedError
+    num = np.exp((U+phi_params["alpha"])*phi_params["beta"])*phi_params["r_max"]*phi_params["beta"]
+    denom = (np.exp(U*phi_params["beta"]) + np.exp(phi_params["alpha"]*phi_params["beta"]))**2
+    return num/denom
 
 def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron, voltage_clamp):
     (U, V, V_w_star, dV_dw, dV_w_star_dw) = tuple(y)

@@ -18,7 +18,6 @@ def task((repetition_i,p)):
     learn['tau_delta'] = 2.0
 
     neuron = get_default("neuron")
-    neuron["phi"]["function"] = "sigm"
     neuron["phi"]['r_max'] = p["r_max"]
     neuron["phi"]['alpha'] = p["alpha"]
     neuron["phi"]['beta'] = p["beta"]
@@ -30,13 +29,13 @@ def task((repetition_i,p)):
         'pre_spikes': np.array([50.0+p["delta"]]),
         'I_ext': lambda t: 0.0
         }
-        
+
     spikes = np.array([50.0])
-    
+
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(get_all_save_keys(), interval=10), BooleanAccumulator(['spike', 'dendr_spike', 'pre_spike'])]
     accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det_dyn_ref(p["thresh"],p["tau_ref_0"],p["theta_0"]), accs, seed=seed, learn=learn, neuron=neuron)
-        
+
 
     dump(accums,p['ident'])
 

@@ -12,11 +12,11 @@ import time
 
 def task((repetition_i,p)):
 
-    neuron = get_default("sigm_neuron")
+    neuron = get_default("neuron")
     neuron["phi"]['alpha'] = p["alpha"]
     neuron["phi"]['beta'] = p["beta"]
     neuron["phi"]['r_max'] = p["r_max"]
-    
+
     learn = get_default("learn")
     learn["eta"] = 1e-7
 

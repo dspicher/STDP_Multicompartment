@@ -71,10 +71,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
         # dendritic prediction
         dendr_pred = phi(curr['y'][2], neuron)
-        if neuron['phi']['function'] == 'exp':
-            h = neuron['phi']['a']
-        else:
-            h = phi_prime(curr['y'][2], neuron)/phi(curr['y'][2], neuron)
+        h = phi_prime(curr['y'][2], neuron)/phi(curr['y'][2], neuron)
 
         # update weight
         PIV = (neuron['delta_factor']*float(dendr_spike)/dt - dendr_pred)*h*curr['y'][4]
