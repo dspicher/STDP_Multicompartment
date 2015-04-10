@@ -23,6 +23,7 @@ For every experiment we reproduce, there are three files:
 * a .py file that can be run to perform the simulation and contains more information about the experiment in question, including references
 * a .ipynb: an IPython notebook that can be used, once the .py file is run, to analyze the outcome of the simulation
 * a .pdf file that contains the resulting figure and is always created in the IPython notebook (see above)
+
 The experiments we recreate in our model are the following:
 * stdp_figure_bi_poo: Basic STDP curve as reported by Bi & Poo 1998
 * stdp_figure_sjostrom: Frequency dependence of STDP reported by Sjostrom, Turrigian and Nelson 2001
