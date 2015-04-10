@@ -28,3 +28,6 @@ The experiments we recreate in our model are the following:
 * stdp_figure_sjostrom: Frequency dependence of STDP reported by Sjostrom, Turrigian and Nelson 2001
 * stdp_figure_artola: Postsynaptic depolarization dependence reported by Ngezahayo, Schachner and Artola 2000
 * stdp_figure_sjostrom_switch: Effects of detrimental action potential backpropagation reported by Sjostrom and Hausser 2006
+
+This code is released under the [Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0) license]
+(https://creativecommons.org/licenses/by-nc-nd/4.0/)
