@@ -11,7 +11,7 @@ import time
 def task((repetition_i,p)):
 
     learn = {}
-    learn['eta'] = 2.6e-6 # 40 spikes at 1e-7
+    learn['eta'] = 2.6e-6
     learn['eps'] = 1e-3
     learn['tau_delta'] = 2.0
 
@@ -22,13 +22,13 @@ def task((repetition_i,p)):
 
     my_s = {
         'start': 0.0,
-        'end': 300.0,
+        'end': 500.0,
         'dt': 0.05,
-        'pre_spikes': np.array([50.0+p["delta"]]),
+        'pre_spikes': np.array([200.0+p["delta"]]),
         'I_ext': lambda t: 0.0
         }
 
-    spikes = np.array([50.0])
+    spikes = np.array([200.0])
 
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(get_all_save_keys(), interval=10), BooleanAccumulator(['spike', 'dendr_spike', 'pre_spike'])]
@@ -40,9 +40,9 @@ def task((repetition_i,p)):
 params = OrderedDict()
 params["alpha"] = [-59]
 params["beta"] = [0.5]
-params["r_max"] = [ 0.15    ]
-params["delta"] = np.linspace(-80,80,81)
+params["r_max"] = [0.15]
+params["delta"] = np.linspace(-100,100,101)
 
-file_prefix = 'nice_stdp_1'
+file_prefix = 'stdp_figure_bi_poo'
 
-do(task, params, file_prefix, prompt=False, withmp=False)
+do(task, params, file_prefix, prompt=False)
