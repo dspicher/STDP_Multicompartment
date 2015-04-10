@@ -43,6 +43,6 @@ params["tau_ref_0"] = [5.0]
 params["theta_0"] = [2.5]
 params["Uclamp"] = np.linspace(-40.0,0.0,9)
 
-file_prefix = 'artola_good_params'
+file_prefix = 'stdp_figure_artola'
 
 do(task, params, file_prefix, prompt=False, withmp=True)
