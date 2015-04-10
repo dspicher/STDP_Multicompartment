@@ -1,6 +1,4 @@
 import numpy as np
-from exceptions import NotImplementedError
-from IPython import embed
 
 
 def get_spike_currents(U, t_post_spike, neuron):
@@ -21,7 +19,7 @@ def phi_prime(U, neuron):
     denom = (np.exp(U*phi_params["beta"]) + np.exp(phi_params["alpha"]*phi_params["beta"]))**2
     return num/denom
 
-def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron, voltage_clamp):
+def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron, voltage_clamp, p_backprop):
     (U, V, V_w_star, dV_dw, dV_w_star_dw) = tuple(y)
     dy = np.zeros(5)
 
@@ -34,7 +32,9 @@ def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron, voltage
             dy[0] = dy[0] + get_spike_currents(U,t_post_spike, neuron)
 
     # V derivative
-    dy[1] = -neuron['g_L']*(V-neuron['E_L']) + neuron['g_S']*(U-V) + g_E_D*(neuron['E_E']-V)
+    dy[1] = -neuron['g_L']*(V-neuron['E_L']) - g_E_D*(V-neuron['E_E'])
+    if np.random.rand() <= p_backprop:
+        dy[1] += -neuron['g_S']*(V-U)
 
     # V_w_star derivative
     dy[2] = -neuron['g_L']*(V_w_star-neuron['E_L']) + neuron['g_D']*(V-V_w_star)

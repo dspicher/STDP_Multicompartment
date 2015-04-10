@@ -20,6 +20,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
         normalizer = lambda x: np.max(np.array([x,0.0]))
 
     voltage_clamp = kwargs.get('voltage_clamp', False)
+    p_backprop = kwargs.get('p_backprop',1.0)
 
     I_ext = sim.get('I_ext', step_current(np.array([[sim['start'],0.0]])))
 
@@ -83,8 +84,8 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
         # advance state: integrate from curr['t'] to curr['t']+dt
         curr_I = I_ext(curr['t'])
-        args=(curr['t']-last_spike['t'], g_E_D, syn_pots_sum, curr_I, neuron,voltage_clamp)
-        curr['y'] = integrate.odeint(urb_senn_rhs, curr['y'], np.array([curr['t'], curr['t']+dt]), hmax=dt, args=args)[1,:]
+        args=(curr['y'],curr['t'],curr['t']-last_spike['t'], g_E_D, syn_pots_sum, curr_I, neuron, voltage_clamp, p_backprop)
+        curr['y'] += dt*urb_senn_rhs(*args)
         curr['t'] += dt
 
         # save state
