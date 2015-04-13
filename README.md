@@ -26,7 +26,7 @@ For every experiment we reproduce, there are three files:
 
 The experiments we recreate in our model are the following:
 * stdp_figure_bi_poo: Basic STDP curve as reported by [Bi & Poo 1998](http://www.ncbi.nlm.nih.gov/pubmed/9852584)
-* stdp_figure_sjostrom: Frequency dependence of STDP reported by Sjostrom, Turrigian and Nelson 2001[http://www.ncbi.nlm.nih.gov/pubmed/11754844](http://www.ncbi.nlm.nih.gov/pubmed/11754844)
+* stdp_figure_sjostrom: Frequency dependence of STDP reported by [Sjostrom, Turrigian and Nelson 2001](http://www.ncbi.nlm.nih.gov/pubmed/11754844)
 * stdp_figure_artola: Postsynaptic depolarization dependence reported by [Ngezahayo, Schachner and Artola 2000](http://www.ncbi.nlm.nih.gov/pubmed/10729325)
 * stdp_figure_sjostrom_switch: Effects of detrimental action potential backpropagation reported by [Sjostrom and Hausser 2006](http://www.ncbi.nlm.nih.gov/pubmed/16846857)
 
