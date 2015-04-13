@@ -6,6 +6,25 @@ from util import step_current
 from model import get_spike_currents, phi, phi_prime, urb_senn_rhs
 
 def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normalizer=None, **kwargs):
+    """ this is the main simulation routine, can either be called directly, or with
+    the convenience routine do in helper.py
+    arguments:
+    sim -- a dictionary containing the following simulation parameters
+        start: starting time
+        end: ending time
+        dt: time step
+        I_ext: function for evaluating externally applied current
+        pre_spikes: a list of presynaptic spikes
+    spiker -- the somatic spiker
+    spiker_dendr -- the dendritic spiker
+    accumulators -- a list of accumulators for saving model variables during the simulation
+    neuron -- a dictionary containing the neuron parameters, default_neuron is used if none specified
+    learn -- a dictionary contianing the learning parameters, default_learn is used if none specified
+    normalizer -- a function to normalize synaptic weights, e.g. the default normalizer
+        ensures non-negative weights
+    returns:
+    a list of accumulators containing simulation results
+    """
 
     use_seed = kwargs.get('seed',0)
     np.random.seed(use_seed)
