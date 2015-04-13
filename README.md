@@ -1,9 +1,9 @@
 # Modeling spike-timing dependent plasticity under somato-dendritic prediction error learning
 
-Somato-dendritic prediction error learning was proposed by Urbanczik and Walter in 2014 [1] as a learning rule in a compartmental model that is derived from an error-minimization procedure and can thus be proven to lead to optimal synaptic weight dynamics in a mathematical sense. In [1] it was shown that this learning rule can subserve various learning paradigms depending on how synaptic input is structured. 
+Somato-dendritic prediction error learning was proposed by [Urbanczik and Senn](http://www.ncbi.nlm.nih.gov/pubmed/24507189) in 2014 as a learning rule in a compartmental model that is derived from an error-minimization procedure and can thus be proven to lead to optimal synaptic weight dynamics in a mathematical sense. It was shown that this learning rule can subserve various learning paradigms depending on how synaptic input is structured. 
 
 The intention of this repository is two-fold:
-* provide an implementation of an extended version of the model proposed in [1]. Key changes include
+* provide an implementation of an extended version of the model proposed by Urbanczik and Senn. Key changes include
   * conductance-based synapses instead of liner EPSP summation on the dendrite
   * subthreshold voltage flow from the soma to the dendrite
 * provide credibility to the proposed learning scheme by showing that a diverse set of characteristics regarding the spike-timing dependence of plasticity observed in experiments emerge under somato-dendritic prediction error learning
@@ -25,10 +25,12 @@ For every experiment we reproduce, there are three files:
 * a .pdf file that contains the resulting figure and is always created in the IPython notebook (see above)
 
 The experiments we recreate in our model are the following:
-* stdp_figure_bi_poo: Basic STDP curve as reported by Bi & Poo 1998
-* stdp_figure_sjostrom: Frequency dependence of STDP reported by Sjostrom, Turrigian and Nelson 2001
-* stdp_figure_artola: Postsynaptic depolarization dependence reported by Ngezahayo, Schachner and Artola 2000
-* stdp_figure_sjostrom_switch: Effects of detrimental action potential backpropagation reported by Sjostrom and Hausser 2006
+* stdp_figure_bi_poo: Basic STDP curve as reported by [Bi & Poo 1998](http://www.ncbi.nlm.nih.gov/pubmed/9852584)
+* stdp_figure_sjostrom: Frequency dependence of STDP reported by Sjostrom, Turrigian and Nelson 2001[http://www.ncbi.nlm.nih.gov/pubmed/11754844](http://www.ncbi.nlm.nih.gov/pubmed/11754844)
+* stdp_figure_artola: Postsynaptic depolarization dependence reported by [Ngezahayo, Schachner and Artola 2000](http://www.ncbi.nlm.nih.gov/pubmed/10729325)
+* stdp_figure_sjostrom_switch: Effects of detrimental action potential backpropagation reported by [Sjostrom and Hausser 2006](http://www.ncbi.nlm.nih.gov/pubmed/16846857)
+
+These preliminary data were presented as a [poster](http://dspicher.github.io/pages/dendrites15.html) at the Dendrites conference 2015 in Ventura, California.
 
 This code is released under the [Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0) license]
 (https://creativecommons.org/licenses/by-nc-nd/4.0/)
