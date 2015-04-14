@@ -1,3 +1,22 @@
+"""
+Here we reproduce experiments reported in
+"Synaptic Activity Modulates the Induction of Bidirectional Synaptic Changes in Adult Mouse Hippocampus"
+Anaclet Ngezahayo, Melitta Schachner, and Alain Artola
+The Journal of Neuroscience, 2000
+
+Specifically, we investigate plasticity when the postsynaptic neuron is voltage-clamped
+at some particular voltage (Figure 2d). The data from this figure can be found in
+the "experimental_data" folder.
+
+Approximate runtime on an Intel Xeon X3470 machine (4 CPUs, 8 threads):
+
+
+Running this file should produce 9 .p files.
+
+Afterwards, code in the corresponding
+IPython notebook will produce a figure showing experimental data and
+simulation results next to each other.
+"""
 
 from util import get_all_save_keys, get_periodic_current, get_inst_backprop, get_phi_spiker, get_dendr_spike_det_dyn_ref
 from helper import do, PeriodicAccumulator, BooleanAccumulator, dump, get_default
@@ -8,7 +27,6 @@ from collections import OrderedDict
 from simulation import run
 import matplotlib.pyplot as plt
 import time
-
 
 def task((repetition_i,p)):
 
@@ -37,7 +55,7 @@ def task((repetition_i,p)):
 params = OrderedDict()
 params["alpha"] = [-34.0]
 params["beta"] = [0.25]
-params["r_max"] = [0.015,0.025]
+params["r_max"] = [0.015]
 params["thresh"] = [-20.0]
 params["tau_ref_0"] = [5.0]
 params["theta_0"] = [2.5]

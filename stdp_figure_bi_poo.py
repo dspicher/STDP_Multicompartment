@@ -1,3 +1,27 @@
+
+"""
+Here we reproduce experiments reported in
+"Synaptic Modifications in Cultured Hippocampal Neurons:
+Dependence on Spike Timing, Synaptic Strength, and
+Postsynaptic Cell Type"
+Guo-qiang Bi and Mu-ming Poo
+The Journal of Neuroscience, 1998
+
+Specifically, we investigate the basic spike-timing dependence  of plasticity
+by manipulating the relative difference of pre- and postsynaptic spikes
+(Figure 7). The data from this figure can be found in
+the "experimental_data" folder.
+
+Approximate runtime on an Intel Xeon X3470 machine (4 CPUs, 8 threads):
+
+
+Running this file should produce 101 .p files.
+
+Afterwards, code in the corresponding
+IPython notebook will produce a figure showing experimental data and
+simulation results next to each other.
+"""
+
 from util import get_all_save_keys, get_periodic_current, get_inst_backprop, get_phi_spiker, get_dendr_spike_det_dyn_ref, get_fixed_spiker
 from helper import do, PeriodicAccumulator, BooleanAccumulator, dump, get_default
 import numpy as np

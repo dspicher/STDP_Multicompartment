@@ -1,3 +1,25 @@
+"""
+Here we reproduce experiments reported in
+"Rate, Timing, and Cooperativity Jointly Determine
+Cortical Synaptic Plasticity"
+Per Jesper Sjostrom, Gina G. Turrigiano, and Sacha B. Nelson
+Neuron, 2001
+
+Specifically, we investigate the dependence of plasticity on the frequency
+with which pre-post stimulation pulses are delivered at either +10ms or -10ms.
+(Figure 1D and 7B, combined data also shown in Figure 8A).
+The data can be found in the "experimental_data" folder.
+
+Approximate runtime on an Intel Xeon X3470 machine (4 CPUs, 8 threads):
+
+
+Running this file should produce 10 .p files.
+
+Afterwards, code in the corresponding
+IPython notebook will produce a figure showing experimental data and
+simulation results next to each other.
+"""
+
 from util import get_all_save_keys, get_periodic_current, get_inst_backprop, get_fixed_spiker, get_dendr_spike_det_dyn_ref
 from helper import do, PeriodicAccumulator, BooleanAccumulator, dump, get_default
 import numpy as np
@@ -15,26 +37,26 @@ def task((repetition_i,p)):
     learn['eta'] = 1e-7
     learn['eps'] = 1e-3
     learn['tau_delta'] = 2.0
-    
+
     n_spikes = 40.0
-        
+
 
     neuron = get_default("neuron")
     neuron["phi"]['r_max'] = p["r_max"]
     neuron["phi"]['alpha'] = p["alpha"]
     neuron["phi"]['beta'] = p["beta"]
     neuron["g_L"] = p["g_L"]
-    
+
     freq = p["freq"]
     delta = p["delta"]
 
     first_spike = 1000.0/(2*freq)
     isi = 1000.0/freq
     t_end = 1000.0*n_spikes/freq
-    
+
     spikes = np.arange(first_spike, t_end, isi)
     pre_spikes = spikes + delta
-    
+
     my_s = {
         'start': 0.0,
         'end': t_end,
@@ -42,11 +64,11 @@ def task((repetition_i,p)):
         'pre_spikes': pre_spikes,
         'I_ext': lambda t: 0.0
         }
-        
+
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(['weight'], interval=10)]
     accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det_dyn_ref(-50.0,10.0,100.0), accs, seed=seed, learn=learn, neuron=neuron)
-                
+
     dump(accums[0].res['weight'][-1]/accums[0].res['weight'][0],p['ident'])
 
 params = OrderedDict()
@@ -60,4 +82,3 @@ params["delta"] = np.array([-10.0,10.0])
 file_prefix = 'stdp_figure_sjostrom'
 
 do(task, params, file_prefix, prompt=False, withmp=True)
-

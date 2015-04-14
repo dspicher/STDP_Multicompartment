@@ -14,10 +14,10 @@ class BooleanAccumulator:
         for key in self.keys:
             if vals[key]:
                 self.res[key] = np.append(self.res[key], curr_t)
-                
+
     def cleanup(self):
         pass
-        
+
     def add_variable(self,name,val):
         self.res['name'] = val
 
@@ -46,20 +46,20 @@ class PeriodicAccumulator:
                 for key in self.keys:
                     self.res[key] = np.vstack((self.res[key],np.zeros(self.res[key].shape, np.float32)))
                 self.size = self.size*2
-                
+
             for key in self.keys:
                 self.res[key][self.j,:] = np.atleast_2d(vals[key])
             self.t[self.j] = curr_t
-            
+
             self.j += 1
             self.i = 0
         self.i += 1
-        
+
     def cleanup(self):
         self.t = self.t[:self.j]
         for key in self.keys:
             self.res[key] = np.squeeze(self.res[key][:self.j,:])
-        
+
     def add_variable(self,name,val):
         self.res['name'] = val
 
@@ -81,32 +81,37 @@ def do(func, params, file_prefix, prompt=True, **kwargs):
     for t in ["Results", "Conclusion"]:
         texts[t] = "<font color='grey'>n/a</font>"
 
-    nb_descriptors = OrderedDict()
-    st = inspect.stack()
-    nb_descriptors['simulation file'] = st[1][1]
-    nb_descriptors['result files prefix'] = file_prefix
-    param_counts = map(len,params.values())
-    nb_descriptors['# result files'] = '\*'.join(map(str,param_counts)) + ' = ' + str(reduce(lambda x,y:x*y,param_counts))
+    create_notebooks = kwargs.get("create_notebooks", False)
 
-    runs, base_str = construct_params(params,file_prefix)
+    if create_notebooks:
+        nb_descriptors = OrderedDict()
+        st = inspect.stack()
+        nb_descriptors['simulation file'] = st[1][1]
+        nb_descriptors['result files prefix'] = file_prefix
+        param_counts = map(len,params.values())
+        nb_descriptors['# result files'] = '\*'.join(map(str,param_counts)) + ' = ' + str(reduce(lambda x,y:x*y,param_counts))
 
-    #create_analysis_notebook(nb_descriptors, params, texts, base_str, "_pre")
+        runs, base_str = construct_params(params,file_prefix)
 
-    ts = datetime.datetime.fromtimestamp(time.time())
+        create_analysis_notebook(nb_descriptors, params, texts, base_str, "_pre")
 
-    nb_descriptors['simulation start'] = ts.strftime('%Y-%m-%d %H:%M:%S')
+        ts = datetime.datetime.fromtimestamp(time.time())
+
+        nb_descriptors['simulation start'] = ts.strftime('%Y-%m-%d %H:%M:%S')
 
     run_tasks(runs, func, **kwargs)
 
-    te = datetime.datetime.fromtimestamp(time.time())
-    nb_descriptors['simulation end'] = te.strftime('%Y-%m-%d %H:%M:%S')
-    nb_descriptors['duration'] = str(datetime.timedelta(seconds=(te-ts).seconds))
+    if create_notebooks:
+
+        te = datetime.datetime.fromtimestamp(time.time())
+        nb_descriptors['simulation end'] = te.strftime('%Y-%m-%d %H:%M:%S')
+        nb_descriptors['duration'] = str(datetime.timedelta(seconds=(te-ts).seconds))
 
 
 
-    nb_descriptors['repository'], nb_descriptors['revision hash'] = get_git_info()
+        nb_descriptors['repository'], nb_descriptors['revision hash'] = get_git_info()
 
-    create_analysis_notebook(nb_descriptors, params, texts, base_str)
+        create_analysis_notebook(nb_descriptors, params, texts, base_str)
 
 def get_git_info():
     import subprocess, re
@@ -140,7 +145,7 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
     pickler_cell_str += "    return cPickle.load(open(\'" + base_str + ".p\'.format(" + ", ".join(ps.keys()) + "),\'rb\'))\n\n\n"
 
 
-    
+
     for name, vals in ps.items():
         pickler_cell_str += name + "_s = " + repr(vals) + "\n"
 
@@ -152,12 +157,12 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
     pickler_cell_str += "data = {tup:get(*tup) for tup in params}"
 
     cells.append(nbf.new_code_cell(pickler_cell_str))
-    
+
     cells.append(nbf.new_code_cell("from IPython.html.widgets import interact, interactive, fixed\nfrom IPython.html import widgets\nfrom IPython.display import clear_output, display, HTML"))
-    
+
     interact = ""
     interact +="def show_plot(key,"+", ".join(ps.keys())+",y_c,t_min,t_max):\n"
-    interact +="    figure(figsize=(12,5))\n"   
+    interact +="    figure(figsize=(12,5))\n"
     interact +="    p = ("+", ".join(ps.keys())+")\n"
     interact +="    ts = data[p][0].t\n"
     interact +="    mask = np.logical_and(ts>=t_min,ts<=t_max)\n"
@@ -166,7 +171,7 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
     interact +="    else:\n"
     interact +="        plot(data[p][0].t[mask],data[p][0].res[key][mask])\n"
     cells.append(nbf.new_code_cell(interact))
-    
+
     interact =""
     interact += "ts = data[params[0]][0].t\n"
     interact += "i = interact(show_plot,\n"
@@ -180,7 +185,7 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
         interact += name + "=widgets.RadioButtonsWidget(description=\'" + name + "\',values=" + rep + "),\n"
     interact += "y_c=widgets.RadioButtonsWidget(description='y_c',values=range(5)))\n"
     cells.append(nbf.new_code_cell(interact))
-    
+
     nb['worksheets'].append(nbf.new_worksheet(cells=cells))
 
     fname = nb_descriptors['simulation file'][:-3] + "_analysis" + name_postfix + ".ipynb"
