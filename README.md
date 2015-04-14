@@ -32,5 +32,7 @@ The experiments we recreate in our model are the following:
 
 These preliminary data were presented as a [poster](http://dspicher.github.io/pages/dendrites15.html) at the Dendrites conference 2015 in Ventura, California.
 
+Feel free to [contact](http://www.physio.unibe.ch/~spicher/) me if you run into problems using this code or have questions.
+
 This code is released under the [Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0) license]
 (https://creativecommons.org/licenses/by-nc-nd/4.0/)
