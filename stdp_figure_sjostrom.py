@@ -11,7 +11,7 @@ with which pre-post stimulation pulses are delivered at either +10ms or -10ms.
 The data can be found in the "experimental_data" folder.
 
 Approximate runtime on an Intel Xeon X3470 machine (4 CPUs, 8 threads):
-
+4min
 
 Running this file should produce 10 .p files.
 

@@ -9,7 +9,7 @@ at some particular voltage (Figure 2d). The data from this figure can be found i
 the "experimental_data" folder.
 
 Approximate runtime on an Intel Xeon X3470 machine (4 CPUs, 8 threads):
-
+< 1min
 
 Running this file should produce 9 .p files.
 

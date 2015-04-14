@@ -13,7 +13,7 @@ by manipulating the relative difference of pre- and postsynaptic spikes
 the "experimental_data" folder.
 
 Approximate runtime on an Intel Xeon X3470 machine (4 CPUs, 8 threads):
-
+< 2min
 
 Running this file should produce 101 .p files.
 
