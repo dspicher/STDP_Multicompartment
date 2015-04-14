@@ -82,6 +82,8 @@ def do(func, params, file_prefix, prompt=True, **kwargs):
         texts[t] = "<font color='grey'>n/a</font>"
 
     create_notebooks = kwargs.get("create_notebooks", False)
+    
+    runs, base_str = construct_params(params,file_prefix)
 
     if create_notebooks:
         nb_descriptors = OrderedDict()
@@ -91,7 +93,6 @@ def do(func, params, file_prefix, prompt=True, **kwargs):
         param_counts = map(len,params.values())
         nb_descriptors['# result files'] = '\*'.join(map(str,param_counts)) + ' = ' + str(reduce(lambda x,y:x*y,param_counts))
 
-        runs, base_str = construct_params(params,file_prefix)
 
         create_analysis_notebook(nb_descriptors, params, texts, base_str, "_pre")
 
