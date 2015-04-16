@@ -8,6 +8,8 @@ The intention of this repository is two-fold:
   * subthreshold voltage flow from the soma to the dendrite
 * provide credibility to the proposed learning scheme by showing that a diverse set of characteristics regarding the spike-timing dependence of plasticity observed in experiments emerge under somato-dendritic prediction error learning
 
+A more detailed mathematical description of the model is given in model.pdf. All references to equation numbers within comments in .py files refer to this document.
+
 The model is implemented in pure Python and relies on the standard software stack for scientific computing in Python (numpy, matplotlib, etc.). I recommend using the [Anaconda distribution](https://store.continuum.io/cshop/anaconda/).
 
 ## File description
