@@ -31,6 +31,8 @@ The experiments we recreate in our model are the following:
 * stdp_figure_artola: Postsynaptic depolarization dependence reported by [Ngezahayo, Schachner and Artola 2000](http://www.ncbi.nlm.nih.gov/pubmed/10729325)
 * stdp_figure_sjostrom_switch: Effects of detrimental action potential backpropagation reported by [Sjostrom and Hausser 2006](http://www.ncbi.nlm.nih.gov/pubmed/16846857)
 
+For more information on the experiments being reproduced, refer to the individual .py files.
+
 These preliminary data were presented as a [poster](http://dspicher.github.io/pages/dendrites15.html) at the Dendrites conference 2015 in Ventura, California.
 
 Feel free to [contact](http://www.physio.unibe.ch/~spicher/) me if you run into problems using this code or have questions.
