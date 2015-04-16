@@ -13,7 +13,6 @@ A more detailed mathematical description of the model is given in model.pdf. All
 The model is implemented in pure Python and relies on the standard software stack for scientific computing in Python (numpy, matplotlib, etc.). I recommend using the [Anaconda distribution](https://store.continuum.io/cshop/anaconda/).
 
 ## File description
-Here we describe the files containing the main Python code during a simulation:
 * model.py contains the key model logic, in particular the rhs of the set of differential equations
 * simulation.py contains the main simulation loop which performs Euler integration
 * util.py contains helper functions related to the model logic itself, e.g. functions that determine when to initiate spikes
