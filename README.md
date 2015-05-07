@@ -22,7 +22,7 @@ The model is implemented in pure Python and relies on the standard software stac
 ## STDP experiments
 For every experiment we reproduce, there are three files: 
 * a .py file that can be run to perform the simulation and will write multiple .p files to disk that contain the simulation results
-* an .ipynb file: an IPython notebook that contains analysis code, reading in the associated .p files and producing a figure
+* an .ipynb file: an IPython notebook that contains analysis code, reading in the associated .p files and producing a figure. GitHub now renders IPython notebooks!!
 * a .pdf file: the figure produced by the IPython notebook
 
 The experiments we recreate in our model are the following:
