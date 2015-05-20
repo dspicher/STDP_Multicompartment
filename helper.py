@@ -19,20 +19,24 @@ class BooleanAccumulator:
         pass
 
     def add_variable(self,name,val):
-        self.res['name'] = val
+        self.res[name] = val
+
 
 class PeriodicAccumulator:
     def _get_size(self, key):
         if key=='y':
-            return 5
+            return 3+2*self.n_syn
+        elif key in ['g_E_Ds', 'syn_pots_sums', 'PIVs', 'pos_PIVs', 'neg_PIVs', 'weights', 'weight_updates', 'deltas']:
+            return self.n_syn
         else:
             return 1
 
-    def __init__(self, keys, interval=1, init_size=1024):
+    def __init__(self, keys, interval=1, init_size=1024, n_syn=1):
         self.keys = keys
         self.i = interval
         self.j = 0
         self.size = init_size
+        self.n_syn = n_syn
         self.res = {}
         self.interval = interval
         self.t = np.zeros(init_size, np.float32)
@@ -61,7 +65,7 @@ class PeriodicAccumulator:
             self.res[key] = np.squeeze(self.res[key][:self.j,:])
 
     def add_variable(self,name,val):
-        self.res['name'] = val
+        self.res[name] = val
 
 
 def get_default(params):
@@ -82,7 +86,7 @@ def do(func, params, file_prefix, prompt=True, **kwargs):
         texts[t] = "<font color='grey'>n/a</font>"
 
     create_notebooks = kwargs.get("create_notebooks", False)
-    
+
     runs, base_str = construct_params(params,file_prefix)
 
     if create_notebooks:

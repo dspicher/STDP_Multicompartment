@@ -5,20 +5,20 @@ from helper import get_default
 
 def get_all_save_keys():
     """ all variables that can be recorded during a simulation """
-    return ['g',
-            'syn_pots_sum',
+    return ['g_E_Ds',
+            'syn_pots_sums',
             'y',
             'spike',
             'dendr_pred',
             'h',
-            'PIV',
-            'pos_PIV',
-            'neg_PIV',
+            'PIVs',
+            'pos_PIVs',
+            'neg_PIVs',
             'dendr_spike',
             'pre_spike',
-            'weight',
-            'weight_update',
-            'delta',
+            'weights',
+            'weight_updates',
+            'deltas',
             'I_ext']
 
 def get_fixed_spiker(spikes):

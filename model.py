@@ -42,7 +42,7 @@ def phi_prime(U, neuron):
     denom = (np.exp(U*phi_params["beta"]) + np.exp(phi_params["alpha"]*phi_params["beta"]))**2
     return num/denom
 
-def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron, voltage_clamp, p_backprop):
+def urb_senn_rhs(y, t, t_post_spike, g_E_Ds, syn_pots_sums, I_ext, neuron, voltage_clamp, p_backprop):
     """
     computes the right hand side describing how the system of differential equations
     evolves in time, used for Euler integration
@@ -59,8 +59,8 @@ def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron, voltage
     p_backprop -- a probability p where we set the conductance soma -> dendrite to zero
         with probability (1-p)
     """
-    (U, V, V_w_star, dV_dw, dV_w_star_dw) = tuple(y)
-    dy = np.zeros(5)
+    (U, V, V_w_star) = tuple(y[:3])
+    dy = np.zeros(y.shape)
 
     # U derivative
     if voltage_clamp:
@@ -71,17 +71,16 @@ def urb_senn_rhs(y, t, t_post_spike, g_E_D, syn_pots_sum, I_ext, neuron, voltage
             dy[0] = dy[0] + get_spike_currents(U,t_post_spike, neuron)
 
     # V derivative
-    dy[1] = -neuron['g_L']*(V-neuron['E_L']) - g_E_D*(V-neuron['E_E'])
+    dy[1] = -neuron['g_L']*(V-neuron['E_L']) - np.sum(g_E_Ds)*(V-neuron['E_E'])
     if np.random.rand() <= p_backprop:
         dy[1] += -neuron['g_S']*(V-U)
 
     # V_w_star derivative
     dy[2] = -neuron['g_L']*(V_w_star-neuron['E_L']) + neuron['g_D']*(V-V_w_star)
 
-    # dV_dw derivative
-    dy[3] = -(neuron['g_L']+neuron['g_S']+g_E_D)*dV_dw + neuron['g_S']*dV_w_star_dw + (neuron['E_E']-V)*syn_pots_sum
-
-    # dV_w_star_dw derivative
-    dy[4] = -(neuron['g_L'] + neuron['g_D'])*dV_w_star_dw + neuron['g_D']*dV_dw
+    for i in range((y.shape[0]-3)/2):
+        dV_dw, dV_w_star_dw = y[3+2*i], y[3+2*i+1]
+        dy[3+2*i] = -(neuron['g_L']+neuron['g_S']+g_E_Ds[i])*dV_dw + neuron['g_S']*dV_w_star_dw + (neuron['E_E']-V)*syn_pots_sums[i]
+        dy[3+2*i+1] = -(neuron['g_L'] + neuron['g_D'])*dV_w_star_dw + neuron['g_D']*dV_dw
 
     return dy
