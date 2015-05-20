@@ -42,12 +42,12 @@ def task((repetition_i,p)):
         'start': 0.0,
         'end': 4000.0,
         'dt': 0.05,
-        'pre_spikes': np.arange(50.0,4000.0,250.0),
+        'pre_spikes': [np.arange(50.0,4000.0,250.0)],
         'I_ext': lambda t:0.0
         }
 
     seed = int(int(time.time()*1e8)%1e9)
-    accs = [PeriodicAccumulator(['weight'], interval=10)]
+    accs = [PeriodicAccumulator(['weights'], interval=10)]
     accums = run(my_s, lambda **kwargs:False, get_dendr_spike_det_dyn_ref(p["thresh"], p["tau_ref_0"], p["theta_0"]), accs, seed=seed, neuron=neuron, voltage_clamp=True, U_clamp=p['Uclamp'])
 
     dump(accums,p['ident'])
@@ -63,4 +63,4 @@ params["Uclamp"] = np.linspace(-40.0,0.0,9)
 
 file_prefix = 'stdp_figure_artola'
 
-do(task, params, file_prefix, prompt=False, withmp=True)
+do(task, params, file_prefix, prompt=False, withmp=False)
