@@ -36,8 +36,9 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     if learn is None:
         learn = get_default('learn')
 
+    # restrict to positive weights by default
     if normalizer is None:
-        normalizer = lambda x: np.max(np.array([x,0.0]))
+        normalizer = lambda weights: np.where(weights>0, weights, 0.0)
 
     voltage_clamp = kwargs.get('voltage_clamp', False)
     p_backprop = kwargs.get('p_backprop',1.0)

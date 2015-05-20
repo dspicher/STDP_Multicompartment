@@ -15,7 +15,7 @@ def get_all_save_keys():
             'pos_PIVs',
             'neg_PIVs',
             'dendr_spike',
-            'pre_spike',
+            'pre_spikes',
             'weights',
             'weight_updates',
             'deltas',
