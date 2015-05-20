@@ -49,7 +49,7 @@ def task((repetition_i,p)):
         'start': 0.0,
         'end': 1550.0,
         'dt': 0.05,
-        'pre_spikes': spikes-10.0,
+        'pre_spikes': [spikes-10.0],
         'I_ext': lambda t: 0.0
         }
 

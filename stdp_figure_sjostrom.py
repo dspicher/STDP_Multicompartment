@@ -61,15 +61,15 @@ def task((repetition_i,p)):
         'start': 0.0,
         'end': t_end,
         'dt': 0.05,
-        'pre_spikes': pre_spikes,
+        'pre_spikes': [pre_spikes],
         'I_ext': lambda t: 0.0
         }
 
     seed = int(int(time.time()*1e8)%1e9)
-    accs = [PeriodicAccumulator(['weight'], interval=10)]
+    accs = [PeriodicAccumulator(['weights'], interval=10)]
     accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det_dyn_ref(-50.0,10.0,100.0), accs, seed=seed, learn=learn, neuron=neuron)
 
-    dump(accums[0].res['weight'][-1]/accums[0].res['weight'][0],p['ident'])
+    dump(accums[0].res['weights'][-1]/accums[0].res['weights'][0],p['ident'])
 
 params = OrderedDict()
 params['alpha'] = [-54.0]
