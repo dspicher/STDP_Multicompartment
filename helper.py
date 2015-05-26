@@ -15,6 +15,9 @@ class BooleanAccumulator:
             if vals[key]:
                 self.res[key] = np.append(self.res[key], curr_t)
 
+    def prepare_arrays(self, n_syn):
+        pass
+
     def cleanup(self):
         pass
 
@@ -26,22 +29,25 @@ class PeriodicAccumulator:
     def _get_size(self, key):
         if key=='y':
             return 3+2*self.n_syn
-        elif key in ['g_E_Ds', 'syn_pots_sums', 'PIVs', 'pos_PIVs', 'neg_PIVs', 'weights', 'weight_updates', 'deltas']:
+        elif key in ['g_E_Ds', 'syn_pots_sums', 'PIVs', 'pos_PIVs', 'neg_PIVs', 'weights', 'weight_updates', 'deltas','pre_spikes']:
             return self.n_syn
         else:
             return 1
 
-    def __init__(self, keys, interval=1, init_size=1024, n_syn=1):
+    def __init__(self, keys, interval=1, init_size=1024):
         self.keys = keys
+        self.init_size = init_size
         self.i = interval
         self.j = 0
         self.size = init_size
-        self.n_syn = n_syn
-        self.res = {}
         self.interval = interval
         self.t = np.zeros(init_size, np.float32)
-        for key in keys:
-            self.res[key] = np.zeros((init_size,self._get_size(key)), np.float32)
+
+    def prepare_arrays(self, n_syn=1):
+        self.n_syn = n_syn
+        self.res = {}
+        for key in self.keys:
+            self.res[key] = np.zeros((self.init_size,self._get_size(key)), np.float32)
 
     def add(self, curr_t, **vals):
         if np.isclose(self.i, self.interval):

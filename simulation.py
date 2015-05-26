@@ -45,11 +45,18 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
     I_ext = sim.get('I_ext', step_current(np.array([[sim['start'],0.0]])))
 
+    # ensure numpy arrays, for fancy indexing
     pre_spikes = sim['pre_spikes']
+    for i, pre_sp in enumerate(pre_spikes):
+        pre_spikes[i] = np.array(pre_sp)
+
+
     n_syn = len(pre_spikes)
     for key in ['eps','eta','tau_delta']:
         if not isinstance(learn[key], collections.Iterable):
             learn[key] = np.array([learn[key] for _ in range(n_syn)])
+    for acc in accumulators:
+        acc.prepare_arrays(n_syn)
 
     t_start, t_end, dt = sim['start'], sim['end'], sim['dt']
 
