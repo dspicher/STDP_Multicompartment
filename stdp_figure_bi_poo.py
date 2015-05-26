@@ -48,7 +48,7 @@ def task((repetition_i,p)):
         'start': 0.0,
         'end': 500.0,
         'dt': 0.05,
-        'pre_spikes': np.array([200.0+p["delta"]]),
+        'pre_spikes': [np.array([200.0+p["delta"]])],
         'I_ext': lambda t: 0.0
         }
 
