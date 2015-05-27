@@ -78,7 +78,7 @@ def get_default(params):
     import json
     return json.load(open('./default/default_{0}.json'.format(params),'r'))
 
-def do(func, params, file_prefix, prompt=True, **kwargs):
+def do(func, params, file_prefix, prompt=False, create_notebooks=False, **kwargs):
     from parallelization import run_tasks
     import inspect
     from collections import OrderedDict
@@ -90,8 +90,6 @@ def do(func, params, file_prefix, prompt=True, **kwargs):
             texts[t] = input("{0}: ".format(t))
     for t in ["Results", "Conclusion"]:
         texts[t] = "<font color='grey'>n/a</font>"
-
-    create_notebooks = kwargs.get("create_notebooks", False)
 
     runs, base_str = construct_params(params,file_prefix)
 
@@ -121,7 +119,6 @@ def do(func, params, file_prefix, prompt=True, **kwargs):
 
 
         nb_descriptors['repository'], nb_descriptors['revision hash'] = get_git_info()
-
         create_analysis_notebook(nb_descriptors, params, texts, base_str)
 
 def get_git_info():
@@ -134,9 +131,9 @@ def get_git_info():
 
 
 def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix=''):
-    from IPython.nbformat import current as nbf
+    import IPython.nbformat as nbf
 
-    nb = nbf.new_notebook()
+    nb = nbf.v4.new_notebook()
 
     cells = []
 
@@ -144,12 +141,12 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
     md_cell += '| Field | Value |\n'
     md_cell += '|-|-|\n'
     md_cell +="\n".join(['| ' + name + ' | ' + des + ' |' for (name,des) in nb_descriptors.items()])
-    cells.append(nbf.new_text_cell('markdown', md_cell))
+    cells.append(nbf.v4.new_markdown_cell(md_cell))
 
     md_cell = "\n\n".join('### ' + field + "\n" + value for (field, value) in texts.items())
-    cells.append(nbf.new_text_cell('markdown', md_cell))
+    cells.append(nbf.v4.new_markdown_cell(md_cell))
 
-    cells.append(nbf.new_code_cell("%pylab inline\nimport cPickle\nfrom helper import PeriodicAccumulator, BooleanAccumulator\nfrom itertools import product"))
+    cells.append(nbf.v4.new_code_cell("%pylab inline\nimport cPickle\nfrom helper import PeriodicAccumulator, BooleanAccumulator\nfrom itertools import product"))
 
     pickler_cell_str = ""
     pickler_cell_str += "def get(" + ", ".join(ps.keys()) + "):\n"
@@ -158,7 +155,7 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
 
 
     for name, vals in ps.items():
-        pickler_cell_str += name + "_s = " + repr(vals) + "\n"
+        pickler_cell_str += name + "_s = [str(a) for a in " + repr(vals) + "]\n"
 
     names = [k+"_s" for k in ps.keys()   ]
     pickler_cell_str += "\n\n"
@@ -167,9 +164,9 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
     pickler_cell_str += "\n\n"
     pickler_cell_str += "data = {tup:get(*tup) for tup in params}"
 
-    cells.append(nbf.new_code_cell(pickler_cell_str))
+    cells.append(nbf.v4.new_code_cell(pickler_cell_str))
 
-    cells.append(nbf.new_code_cell("from IPython.html.widgets import interact, interactive, fixed\nfrom IPython.html import widgets\nfrom IPython.display import clear_output, display, HTML"))
+    cells.append(nbf.v4.new_code_cell("from IPython.html.widgets import interact, interactive, fixed\nfrom IPython.html import widgets\nfrom IPython.display import clear_output, display, HTML"))
 
     interact = ""
     interact +="def show_plot(key,"+", ".join(ps.keys())+",y_c,t_min,t_max):\n"
@@ -181,28 +178,27 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
     interact +="        plot(data[p][0].t[mask],data[p][0].res[key][mask,y_c])\n"
     interact +="    else:\n"
     interact +="        plot(data[p][0].t[mask],data[p][0].res[key][mask])\n"
-    cells.append(nbf.new_code_cell(interact))
+    cells.append(nbf.v4.new_code_cell(interact))
 
     interact =""
     interact += "ts = data[params[0]][0].t\n"
     interact += "i = interact(show_plot,\n"
-    interact += "key=widgets.DropdownWidget(description='key',values=['dendr_pred','weight','weight_update', 'PIV', 'y','h']),\n"
+    interact += "key=widgets.ToggleButtons(description='key',options=['dendr_pred','weights','weight_updates', 'PIVs', 'y','h']),\n"
     interact += "t_min=(0,int(np.round(ts[-1]))),\n"
     interact += "t_max=(0,int(np.round(ts[-1]))),\n"
     for name, vals in ps.items():
         rep = repr(vals)
         if rep[:6] == "array(":
             rep = rep[6:-1]
-        interact += name + "=widgets.RadioButtonsWidget(description=\'" + name + "\',values=" + rep + "),\n"
-    interact += "y_c=widgets.RadioButtonsWidget(description='y_c',values=range(5)))\n"
-    cells.append(nbf.new_code_cell(interact))
+        interact += name + "=widgets.ToggleButtons(description=\'" + name + "\',options=" + name + "_s" + "),\n"
+    interact += "y_c=widgets.ToggleButtons(description='y_c',options=[str(a) for a in range(5)]))\n"
+    cells.append(nbf.v4.new_code_cell(interact))
 
-    nb['worksheets'].append(nbf.new_worksheet(cells=cells))
+    nb['cells'] =cells
 
     fname = nb_descriptors['simulation file'][:-3] + "_analysis" + name_postfix + ".ipynb"
-
     with open(fname, 'w') as f:
-        nbf.write(nb, f, 'ipynb')
+        nbf.write(nb, f)
 
 def construct_params(params, prefix=''):
     from itertools import product
