@@ -11,7 +11,7 @@ on plasticity in spike-timing dependent stimulation protocols.
 (Figure 3). The data from this figure can be found in the "experimental_data" folder.
 
 Approximate runtime on an Intel Xeon X3470 machine (4 CPUs, 8 threads):
-4m
+< 1 min
 
 Running this file should produce 100 .p files.
 
