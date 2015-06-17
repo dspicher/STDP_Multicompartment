@@ -78,18 +78,11 @@ def get_default(params):
     import json
     return json.load(open('./default/default_{0}.json'.format(params),'r'))
 
-def do(func, params, file_prefix, prompt=False, create_notebooks=False, **kwargs):
+def do(func, params, file_prefix, create_notebooks=True, **kwargs):
     from parallelization import run_tasks
     import inspect
     from collections import OrderedDict
     import time, datetime
-
-    texts = OrderedDict()
-    if prompt:
-        for t in ["Motivation", "Hypothesis"]:
-            texts[t] = input("{0}: ".format(t))
-    for t in ["Results", "Conclusion"]:
-        texts[t] = "<font color='grey'>n/a</font>"
 
     runs, base_str = construct_params(params,file_prefix)
 
@@ -102,7 +95,7 @@ def do(func, params, file_prefix, prompt=False, create_notebooks=False, **kwargs
         nb_descriptors['# result files'] = '\*'.join(map(str,param_counts)) + ' = ' + str(reduce(lambda x,y:x*y,param_counts))
 
 
-        create_analysis_notebook(nb_descriptors, params, texts, base_str, "_pre")
+        create_analysis_notebook(nb_descriptors, params, base_str, "_pre")
 
         ts = datetime.datetime.fromtimestamp(time.time())
 
@@ -119,7 +112,7 @@ def do(func, params, file_prefix, prompt=False, create_notebooks=False, **kwargs
 
 
         nb_descriptors['repository'], nb_descriptors['revision hash'] = get_git_info()
-        create_analysis_notebook(nb_descriptors, params, texts, base_str)
+        create_analysis_notebook(nb_descriptors, params, base_str)
 
 def get_git_info():
     import subprocess, re
@@ -130,7 +123,7 @@ def get_git_info():
     return repo, rev_string
 
 
-def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix=''):
+def create_analysis_notebook(nb_descriptors, ps, base_str, name_postfix=''):
     import IPython.nbformat as nbf
 
     nb = nbf.v4.new_notebook()
@@ -141,9 +134,6 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
     md_cell += '| Field | Value |\n'
     md_cell += '|-|-|\n'
     md_cell +="\n".join(['| ' + name + ' | ' + des + ' |' for (name,des) in nb_descriptors.items()])
-    cells.append(nbf.v4.new_markdown_cell(md_cell))
-
-    md_cell = "\n\n".join('### ' + field + "\n" + value for (field, value) in texts.items())
     cells.append(nbf.v4.new_markdown_cell(md_cell))
 
     cells.append(nbf.v4.new_code_cell("%pylab inline\nimport cPickle\nfrom helper import PeriodicAccumulator, BooleanAccumulator\nfrom itertools import product"))
@@ -196,8 +186,9 @@ def create_analysis_notebook(nb_descriptors, ps, texts, base_str, name_postfix='
 
     nb['cells'] =cells
 
-    fname = nb_descriptors['simulation file'][:-3] + "_analysis" + name_postfix + ".ipynb"
-    with open(fname, 'w') as f:
+    sim_file = nb_descriptors['simulation file'][:-3]
+    fname = sim_file + "_analysis" + name_postfix + ".ipynb"
+    with open(sim_file + '/' + fname, 'w') as f:
         nbf.write(nb, f)
 
 def construct_params(params, prefix=''):
