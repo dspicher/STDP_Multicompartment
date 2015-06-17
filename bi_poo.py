@@ -22,7 +22,7 @@ IPython notebook will produce a figure showing experimental data and
 simulation results next to each other.
 """
 
-from util import get_all_save_keys, get_periodic_current, get_inst_backprop, get_phi_spiker, get_dendr_spike_det_dyn_ref, get_fixed_spiker
+from util import get_all_save_keys, get_periodic_current, get_inst_backprop, get_phi_spiker, get_dendr_spike_det, get_fixed_spiker
 from helper import do, PeriodicAccumulator, BooleanAccumulator, dump, get_default
 import numpy as np
 from IPython import embed
@@ -31,11 +31,12 @@ from collections import OrderedDict
 from simulation import run
 import matplotlib.pyplot as plt
 import time
+import os
 
 def task((repetition_i,p)):
 
     learn = {}
-    learn['eta'] = 2.6e-6
+    learn['eta'] = 1e-6
     learn['eps'] = 1e-3
     learn['tau_delta'] = 2.0
 
@@ -43,30 +44,31 @@ def task((repetition_i,p)):
     neuron["phi"]['r_max'] = p["r_max"]
     neuron["phi"]['alpha'] = p["alpha"]
     neuron["phi"]['beta'] = p["beta"]
+    neuron["tau_s"] = p["tau_s"]
+
+    spikes = np.array([101.0])
 
     my_s = {
         'start': 0.0,
-        'end': 500.0,
+        'end': 300.0,
         'dt': 0.05,
-        'pre_spikes': [np.array([200.0+p["delta"]])],
+        'pre_spikes': [spikes + p["delta"]],
         'I_ext': lambda t: 0.0
         }
 
-    spikes = np.array([200.0])
 
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(get_all_save_keys(), interval=10), BooleanAccumulator(['spike', 'dendr_spike', 'pre_spikes'])]
-    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det_dyn_ref(-50.0,10.0,100.0), accs, seed=seed, learn=learn, neuron=neuron)
+    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0,10.0), accs, seed=seed, learn=learn, neuron=neuron, h=1.0)
 
 
-    dump(accums,p['ident'])
+    dump(accums,'bi_poo/'+p['ident'])
 
 params = OrderedDict()
-params["alpha"] = [-59]
-params["beta"] = [0.5]
-params["r_max"] = [0.15]
-params["delta"] = np.linspace(-100,100,101)
+params["alpha"] = [-53.0,-55.0,-57.0,]
+params["beta"] = [0.3,0.35,0.4]
+params["r_max"] = [0.25,0.3,0.35]
+params["tau_s"] = [2.0, 4.0]
+params["delta"] = np.linspace(-100,100,51)
 
-file_prefix = 'stdp_figure_bi_poo'
-
-do(task, params, file_prefix, prompt=False)
+do(task, params, file_prefix, create_notebooks=True)
