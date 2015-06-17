@@ -10,7 +10,7 @@
   "E_E": 0.0,
   "E_I": -75.0,
   "tau_ref": 10.0,
-  "tau_s": 3,
+  "tau_s": 3.0,
   "t_rise": 1.0,
   "t_fall": 3.0,
   "delta_factor": 1.0,
