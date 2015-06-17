@@ -104,7 +104,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
         # dendritic prediction
         dendr_pred = phi(curr['y'][2], neuron)
-        h = phi_prime(curr['y'][2], neuron)/phi(curr['y'][2], neuron)
+        h = kwargs.get('h', phi_prime(curr['y'][2], neuron)/phi(curr['y'][2], neuron))
 
         # update weights
         PIVs = (neuron['delta_factor']*float(dendr_spike)/dt - dendr_pred)*h*curr['y'][4::2]
@@ -119,7 +119,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
         args=(curr['y'],curr['t'],curr['t']-last_spike['t'], g_E_Ds, syn_pots_sums, curr_I, neuron, voltage_clamp, p_backprop)
         curr['y'] += dt*urb_senn_rhs(*args)
         curr['t'] += dt
-        
+
         # save state
         vals = {'g_E_Ds':g_E_Ds,
                 'syn_pots_sums':syn_pots_sums,
