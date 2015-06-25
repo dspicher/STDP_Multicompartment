@@ -35,7 +35,7 @@ import time
 def task((repetition_i,p)):
 
     learn = get_default("learn")
-    learn["eta"] = 3e-7
+    learn["eta"] = 3e-8
 
     neuron = get_default("neuron")
     neuron["phi"]["alpha"] = -52.0
@@ -58,14 +58,18 @@ def task((repetition_i,p)):
 
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(['weights'], interval=10)]
-    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, neuron=neuron, seed=seed, learn=learn, p_backprop=prob)
+    if p["h1"]:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, neuron=neuron, seed=seed, learn=learn, p_backprop=prob, h=1.0)
+    else:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, neuron=neuron, seed=seed, learn=learn, p_backprop=prob)
 
 
-    dump((prob,accums),p['ident'])
+    dump((prob,accums),'sjostrom_switch/'+p['ident'])
 
 params = OrderedDict()
 params["i"] = range(100)
+params["h1"] = [True, False]
 
-file_prefix = 'stdp_figure_sjostrom_switch'
+file_prefix = 'sjostrom_switch'
 
-do(task, params, file_prefix, prompt=False, withmp=True)
+do(task, params, file_prefix, withmp=True)
