@@ -58,17 +58,13 @@ def task((repetition_i,p)):
 
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(['weights'], interval=10)]
-    if p["h1"]:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, neuron=neuron, seed=seed, learn=learn, p_backprop=prob, h=1.0)
-    else:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, neuron=neuron, seed=seed, learn=learn, p_backprop=prob)
+    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, neuron=neuron, seed=seed, learn=learn, p_backprop=prob, h=1.0)
 
 
     dump((prob,accums),'sjostrom_switch/'+p['ident'])
 
 params = OrderedDict()
 params["i"] = range(100)
-params["h1"] = [True, False]
 
 file_prefix = 'sjostrom_switch'
 
