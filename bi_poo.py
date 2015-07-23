@@ -35,42 +35,67 @@ import os
 
 def task((repetition_i,p)):
 
+    n_vary = 5
+
+    values = {True: {"alpha":-55.0,
+                     "beta":0.4,
+                     "r_max":0.3},
+              False: {"alpha":-59.0,
+                      "beta":0.5,
+                      "r_max":0.17}}
+
+    vary = {"alpha":(-2.0,2.0),
+              "beta":(-0.1,0.2),
+              "r_max":(-0.05,0.15)}
+
+    down = vary[p["vary"]][0]
+    up = vary[p["vary"]][1]
+    middle = values[p["h1"]][p["vary"]]
+    vary_val = np.linspace(middle+down, middle+up, n_vary)[p["i"]]
+    values[p["h1"]][p["vary"]] = vary_val
+    values = values[p["h1"]]
+
     neuron = get_default("neuron")
-    neuron["phi"]['r_max'] = p["r_max"]
-    neuron["phi"]['alpha'] = p["alpha"]
-    neuron["phi"]['beta'] = p["beta"]
-    neuron["g_L"] = p["g_L"]
+    neuron["phi"]['r_max'] = values["r_max"]
+    neuron["phi"]['alpha'] = values["alpha"]
+    neuron["phi"]['beta'] = values["beta"]
 
     learn = get_default("learn")
     learn["eps"] = learn["eps"]*p["l_f"]
     learn["eta"] = learn["eta"]*p["l_f"]
+    if not p["h1"]:
+        learn["eta"] = learn["eta"]*2.5
+    else:
+        learn["eta"] = learn["eta"]*1.3
 
-    spikes = np.array([71.0])
+
+    spikes = np.array([61.0])
 
     my_s = {
         'start': 0.0,
-        'end': 200.0,
+        'end': 150.0,
         'dt': 0.05,
         'pre_spikes': [spikes + p["delta"]],
         'I_ext': lambda t: 0.0
         }
 
 
-    seed = int(int(time.time()*1e8)%1e9)
+    seed = 1
     accs = [PeriodicAccumulator(['y','weights'], interval=10), BooleanAccumulator(['spike', 'dendr_spike', 'pre_spikes'])]
-    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, neuron=neuron, learn=learn, h=1.0)
+    if p["h1"]:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0,10.0), accs, seed=seed, neuron=neuron, learn=learn, h=1.0)
+    else:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0,10.0), accs, seed=seed, neuron=neuron, learn=learn)
 
-
-    dump(accums,'bi_poo/'+p['ident'])
+    dump((accums, values),'bi_poo_vary/'+p['ident'])
 
 params = OrderedDict()
-params["g_L"] = [0.05, 0.066, 0.075]
-params["alpha"] = [-54.0,-55.0,-56.0]
-params["beta"] = [0.37,0.4,0.43]
-params["r_max"] = [0.3,0.35,0.4]
-params["l_f"] = [0.1,1.0,10.0]
-params["delta"] = [-70.0,-50.0,-30.0,-10.0,-5.0,-2.0,0.0,2.0,5.0,10.0,30.0,50.0,70.0]
+params["vary"] = ["alpha", "beta", "r_max"]
+params["h1"] = [False, True]
+params["l_f"] = [1.0,10.0]
+params["delta"] = np.linspace(-60.0, 60.0, 61)
+params["i"] = range(5)
 
-file_prefix = 'bi_poo'
+file_prefix = 'bi_poo_vary'
 
 do(task, params, file_prefix, create_notebooks=True)
