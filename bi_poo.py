@@ -33,7 +33,56 @@ import matplotlib.pyplot as plt
 import time
 import os
 
-def task((repetition_i,p)):
+def fit((repetition_i,p)):
+
+    values = {True: {"alpha":-55.0,
+                     "beta":0.4,
+                     "r_max":0.3},
+              False: {"alpha":-59.0,
+                      "beta":0.5,
+                      "r_max":0.17}}
+
+    neuron = get_default("neuron")
+    neuron["phi"]['r_max'] = values[p["h1"]]["r_max"]
+    neuron["phi"]['alpha'] = values[p["h1"]]["alpha"]
+    neuron["phi"]['beta'] = values[p["h1"]]["beta"]
+
+    learn = get_default("learn")
+    if not p["h1"]:
+        learn["eta"] = learn["eta"]*2.5
+    else:
+        learn["eta"] = learn["eta"]*1.3
+
+
+    spikes = np.array([101.0])
+
+    my_s = {
+        'start': 0.0,
+        'end': 300.0,
+        'dt': 0.05,
+        'pre_spikes': [spikes + p["delta"]],
+        'I_ext': lambda t: 0.0
+        }
+
+
+    seed = 1
+    accs = [PeriodicAccumulator(['y','weights'], interval=10), BooleanAccumulator(['spike', 'dendr_spike', 'pre_spikes'])]
+    if p["h1"]:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, neuron=neuron, learn=learn, h=1.0)
+    else:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, neuron=neuron, learn=learn)
+
+    dump((accums, values),'bi_poo/'+p['ident'])
+    
+params = OrderedDict()
+params["h1"] = [False, True]
+params["delta"] = np.linspace(-100.0, 100.0, 101)
+
+file_prefix = 'bi_poo_fit'
+
+do(fit, params, file_prefix, create_notebooks=False)
+    
+def vary((repetition_i,p)):
 
     n_vary = 5
 
@@ -87,15 +136,15 @@ def task((repetition_i,p)):
     else:
         accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, neuron=neuron, learn=learn)
 
-    dump((accums, values),'bi_poo_vary/'+p['ident'])
+    dump((accums, values),'bi_poo/'+p['ident'])
 
 params = OrderedDict()
 params["vary"] = ["alpha", "beta", "r_max"]
 params["h1"] = [False, True]
 params["l_f"] = [1.0,10.0]
-params["delta"] = np.linspace(-60.0, 60.0, 61)
+params["delta"] = np.linspace(-60.0, 60.0, 31)
 params["i"] = range(5)
 
 file_prefix = 'bi_poo_vary'
 
-do(task, params, file_prefix, create_notebooks=True)
+do(vary, params, file_prefix, create_notebooks=False)
