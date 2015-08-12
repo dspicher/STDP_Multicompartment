@@ -20,7 +20,7 @@ IPython notebook will produce a figure showing experimental data and
 simulation results next to each other.
 """
 
-from util import get_all_save_keys, get_periodic_current, get_inst_backprop, get_fixed_spiker, get_dendr_spike_det_dyn_ref
+from util import get_all_save_keys, get_periodic_current, get_inst_backprop, get_fixed_spiker, get_dendr_spike_det
 from helper import do, PeriodicAccumulator, BooleanAccumulator, dump, get_default
 import numpy as np
 from IPython import embed
@@ -33,19 +33,27 @@ import time
 
 def task((repetition_i,p)):
 
-    learn = {}
-    learn['eta'] = 1e-7
-    learn['eps'] = 1e-3
-    learn['tau_delta'] = 2.0
+    vary = {"alpha":(-2.0,2.0),
+              "beta":(-0.1,0.2),
+              "r_max":(-0.05,0.15)}
 
-    n_spikes = 40.0
+    learn = get_default("learn")
+    if p["h1"]:
+        learn['eta'] *= 0.125*p["l_f"]
+    else:
+        learn["eta"] *= 0.8*p["l_f"]
+    learn["eps"] *= p["l_f"]
 
+    n_spikes = 5.0
 
     neuron = get_default("neuron")
-    neuron["phi"]['r_max'] = p["r_max"]
-    neuron["phi"]['alpha'] = p["alpha"]
-    neuron["phi"]['beta'] = p["beta"]
-    neuron["g_L"] = p["g_L"]
+    neuron["phi"]['r_max'] = 0.2
+    neuron["phi"]['alpha'] = -54.0
+    neuron["phi"]['beta'] = 0.2
+    
+    neuron["phi"][p["vary"]] += np.linspace(vary[p["vary"]][0], vary[p["vary"]][1], 5)[p["i"]]
+    
+    print neuron["phi"]
 
     freq = p["freq"]
     delta = p["delta"]
@@ -66,19 +74,23 @@ def task((repetition_i,p)):
         }
 
     seed = int(int(time.time()*1e8)%1e9)
-    accs = [PeriodicAccumulator(['weights'], interval=10)]
-    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det_dyn_ref(-50.0,10.0,100.0), accs, seed=seed, learn=learn, neuron=neuron)
+    accs = [PeriodicAccumulator(['weights'], interval=100)]
+    if p["h1"]:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron, h=1.0)
+    else:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron)
 
-    dump(accums[0].res['weights'][-1]/accums[0].res['weights'][0],p['ident'])
+    dump(accums,'sjostrom/'+p['ident'])
 
 params = OrderedDict()
-params['alpha'] = [-54.0]
-params["beta"] = [0.1]
-params["g_L"] = [0.03]
-params["r_max"] = [0.071]
+params["vary"] = ["alpha", "beta", "r_max"]
+params["h1"] = [False, True]
+params["l_f"] = [1.0,10.0]
 params["freq"] = np.array([1.0,10.0,20.0,40.0,50.0])
 params["delta"] = np.array([-10.0,10.0])
+params["i"] = range(5)
 
-file_prefix = 'stdp_figure_sjostrom'
 
-do(task, params, file_prefix, prompt=False, withmp=True)
+file_prefix = 'sjostrom'
+
+do(task, params, file_prefix, withmp=True)
