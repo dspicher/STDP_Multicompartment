@@ -32,15 +32,18 @@ import matplotlib.pyplot as plt
 import time
 
 
-def task((repetition_i,p)):
+def fit((repetition_i,p)):
+    
+    etas = {True: 6e-8,
+            False: 30e-8}
 
     learn = get_default("learn")
-    learn["eta"] = 3e-8
+    learn["eta"] = etas[p["h1"]]
 
     neuron = get_default("neuron")
     neuron["phi"]["alpha"] = -52.0
     neuron["phi"]["beta"] = 0.25
-    neuron["phi"]["r_max"] = 0.35
+    neuron["phi"]["r_max"] = 0.2
 
 
     spikes = np.arange(20.0,301.0,20.0)
@@ -53,19 +56,75 @@ def task((repetition_i,p)):
         'I_ext': lambda t: 0.0
         }
 
-    # 0.2 <= p <= 0.55
-    prob = 0.35*np.random.rand()+0.2
+    # 0.3 <= p <= 0.8
+    prob = 0.3 + 0.5*np.random.rand()
 
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(['weights'], interval=10)]
-    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, neuron=neuron, seed=seed, learn=learn, p_backprop=prob, h=1.0)
+    if p["h1"]:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, neuron=neuron, seed=seed, learn=learn, p_backprop=prob, h=1.0)
+    else:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, neuron=neuron, seed=seed, learn=learn, p_backprop=prob)
 
 
     dump((prob,accums),'sjostrom_switch/'+p['ident'])
 
 params = OrderedDict()
+params["h1"] = [False, True]
 params["i"] = range(100)
 
-file_prefix = 'sjostrom_switch'
+file_prefix = 'sjostrom_switch_fit'
 
-do(task, params, file_prefix, withmp=True)
+do(fit, params, file_prefix, withmp=True, create_notebooks=False)
+
+def vary((repetition_i,p)):
+    
+    etas = {True: 6e-8,
+            False: 30e-8}
+            
+    varies = {"alpha": np.linspace(-50.0,-54.0,3),
+              "beta": np.linspace(0.2,0.3,3),
+              "r_max": np.linspace(0.1,0.3,3)}
+
+    learn = get_default("learn")
+    learn["eta"] = etas[p["h1"]]
+
+    neuron = get_default("neuron")
+    neuron["phi"]["alpha"] = -52.0
+    neuron["phi"]["beta"] = 0.25
+    neuron["phi"]["r_max"] = 0.2
+    neuron["phi"][p["vary"]] = varies[p["vary"]][p["ivary"]]
+
+
+    spikes = np.arange(20.0,301.0,20.0)
+
+    my_s = {
+        'start': 0.0,
+        'end': 350.0,
+        'dt': 0.05,
+        'pre_spikes': [spikes-10.0],
+        'I_ext': lambda t: 0.0
+        }
+
+    # 0.2 <= p <= 0.9
+    prob = 0.2 + 0.7*np.random.rand()
+
+    seed = int(int(time.time()*1e8)%1e9)
+    accs = [PeriodicAccumulator(['weights'], interval=10)]
+    if p["h1"]:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, neuron=neuron, seed=seed, learn=learn, p_backprop=prob, h=1.0)
+    else:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, neuron=neuron, seed=seed, learn=learn, p_backprop=prob)
+
+
+    dump((prob,accums),'sjostrom_switch/'+p['ident'])
+
+params = OrderedDict()
+params["vary"] = ["alpha", "beta", "r_max"]
+params["ivary"] = range(3)
+params["h1"] = [False, True]
+params["i"] = range(50)
+
+file_prefix = 'sjostrom_switch_vary'
+
+do(vary, params, file_prefix, withmp=True, create_notebooks=False)
