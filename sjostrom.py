@@ -31,7 +31,7 @@ import matplotlib.pyplot as plt
 import time
 
 
-def fit((repetition_i,p)):
+def vary((repetition_i,p)):
 
     vary = {"alpha":(-2.0,2.0),
               "beta":(-0.1,0.2),
@@ -74,9 +74,9 @@ def fit((repetition_i,p)):
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(['weights'], interval=100)]
     if p["h1"]:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron, h=1.0)
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, learn=learn, neuron=neuron, h=1.0)
     else:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron)
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, learn=learn, neuron=neuron)
 
     dump(accums,'sjostrom/'+p['ident'])
 
@@ -89,25 +89,24 @@ params["delta"] = np.array([-10.0,10.0])
 params["i"] = range(5)
 
 
-file_prefix = 'sjostrom'
+file_prefix = 'sjostrom_vary'
 
-do(fit, params, file_prefix, withmp=True)
+do(vary, params, file_prefix, withmp=True)
 
+def fit((repetition_i,p)):
 
-def overfit((repetition_i,p)):
-
-    learn = {}
-    learn['eta'] = 8e-7
-    learn['eps'] = 1e-3
-    learn['tau_delta'] = 2.0
+    learn = get_default("learn")
+    if p["h1"]:
+        learn['eta'] *= 0.125
+    else:
+        learn["eta"] *= 0.8
 
     n_spikes = 5.0
 
     neuron = get_default("neuron")
-    neuron["phi"]['r_max'] = p["r_max"]
-    neuron["phi"]['alpha'] = p["alpha"]
-    neuron["phi"]['beta'] = p["beta"]
-    neuron["g_L"] = p["g_L"]
+    neuron["phi"]['r_max'] = 0.2
+    neuron["phi"]['alpha'] = -54.0
+    neuron["phi"]['beta'] = 0.2
 
     freq = p["freq"]
     delta = p["delta"]
@@ -129,20 +128,69 @@ def overfit((repetition_i,p)):
 
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(['weights'], interval=100)]
-    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron)
+    if p["h1"]:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, learn=learn, neuron=neuron, h=1.0)
+    else:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, learn=learn, neuron=neuron)
+
+    dump(accums,'sjostrom/'+p['ident'])
+
+params = OrderedDict()
+params["h1"] = [False, True]
+params["freq"] = np.array([1.0,10.0,20.0,40.0,50.0])
+params["delta"] = np.array([-10.0,10.0])
+
+
+file_prefix = 'sjostrom_fit'
+
+do(fit, params, file_prefix, withmp=True)
+
+
+def overfit((repetition_i,p)):
+
+    learn = {}
+    learn['eta'] = 8e-7
+    learn['eps'] = 1e-3
+    learn['tau_delta'] = 2.0
+
+    n_spikes = 5.0
+
+    neuron = get_default("neuron")
+    neuron["phi"]['r_max'] = 0.071
+    neuron["phi"]['alpha'] = -54.0
+    neuron["phi"]['beta'] = 0.1
+    neuron["g_L"] = 0.03
+
+    freq = p["freq"]
+    delta = p["delta"]
+
+    first_spike = 1000.0/(2*freq)
+    isi = 1000.0/freq
+    t_end = 1000.0*n_spikes/freq
+
+    spikes = np.arange(first_spike, t_end, isi)
+    pre_spikes = spikes + delta
+
+    my_s = {
+        'start': 0.0,
+        'end': t_end,
+        'dt': 0.05,
+        'pre_spikes': [pre_spikes],
+        'I_ext': lambda t: 0.0
+        }
+
+    seed = int(int(time.time()*1e8)%1e9)
+    accs = [PeriodicAccumulator(['weights'], interval=100)]
+    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, learn=learn, neuron=neuron)
 
     dump(accums,'sjostrom/'+p['ident'])
 
 
 params = OrderedDict()
-params['alpha'] = [-54.0]
-params["beta"] = [0.1]
-params["g_L"] = [0.03]
-params["r_max"] = [0.071]
 params["freq"] = np.array([1.0,10.0,20.0,40.0,50.0])
 params["delta"] = np.array([-10.0,10.0])
 
 
 file_prefix = 'sjostrom_overfit'
 
-do(overfit, params, file_prefix, withmp=True)
+do(overfit, params, file_prefix, withmp=True, create_notebooks=True)
