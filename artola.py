@@ -28,7 +28,7 @@ from simulation import run
 import matplotlib.pyplot as plt
 import time
 
-def task((repetition_i,p)):
+def overfit((repetition_i,p)):
 
     neuron = get_default("neuron")
     neuron["phi"]['alpha'] = p["alpha"]
@@ -50,7 +50,7 @@ def task((repetition_i,p)):
     accs = [PeriodicAccumulator(['weights'], interval=10)]
     accums = run(my_s, lambda **kwargs:False, get_dendr_spike_det_dyn_ref(p["thresh"], p["tau_ref_0"], p["theta_0"]), accs, seed=seed, neuron=neuron, voltage_clamp=True, U_clamp=p['Uclamp'])
 
-    dump(accums,p['ident'])
+    dump(accums,'artola/'+p['ident'])
 
 params = OrderedDict()
 params["alpha"] = [-34.0]
@@ -61,6 +61,6 @@ params["tau_ref_0"] = [5.0]
 params["theta_0"] = [2.5]
 params["Uclamp"] = np.linspace(-40.0,0.0,9)
 
-file_prefix = 'stdp_figure_artola'
+file_prefix = 'artola_overfit'
 
-do(task, params, file_prefix, prompt=False, withmp=False)
+do(overfit, params, file_prefix, withmp=False, create_notebooks=False)
