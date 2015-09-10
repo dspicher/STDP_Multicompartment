@@ -74,9 +74,9 @@ def vary((repetition_i,p)):
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(['weights'], interval=100)]
     if p["h1"]:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, learn=learn, neuron=neuron, h=1.0)
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron, h=1.0)
     else:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, learn=learn, neuron=neuron)
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron)
 
     dump(accums,'sjostrom/'+p['ident'])
 
@@ -129,9 +129,9 @@ def fit((repetition_i,p)):
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(['weights'], interval=100)]
     if p["h1"]:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, learn=learn, neuron=neuron, h=1.0)
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron, h=1.0)
     else:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, learn=learn, neuron=neuron)
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron)
 
     dump(accums,'sjostrom/'+p['ident'])
 
@@ -181,7 +181,7 @@ def overfit((repetition_i,p)):
 
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(['weights'], interval=100)]
-    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, learn=learn, neuron=neuron)
+    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron)
 
     dump(accums,'sjostrom/'+p['ident'])
 

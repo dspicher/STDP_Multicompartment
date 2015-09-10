@@ -41,7 +41,7 @@ def fit((repetition_i,p)):
     learn["eta"] = etas[p["h1"]]
 
     neuron = get_default("neuron")
-    neuron["phi"]["alpha"] = -52.0
+    neuron["phi"]["alpha"] = -54.0
     neuron["phi"]["beta"] = 0.25
     neuron["phi"]["r_max"] = 0.2
 
@@ -56,8 +56,8 @@ def fit((repetition_i,p)):
         'I_ext': lambda t: 0.0
         }
 
-    # 0.3 <= p <= 0.8
-    prob = 0.3 + 0.5*np.random.rand()
+    # 0.4 <= p <= 0.8
+    prob = 0.4 + 0.4*np.random.rand()
 
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(['weights'], interval=10)]
@@ -82,15 +82,15 @@ def vary((repetition_i,p)):
     etas = {True: 6e-8,
             False: 30e-8}
             
-    varies = {"alpha": np.linspace(-50.0,-54.0,3),
-              "beta": np.linspace(0.2,0.3,3),
+    varies = {"alpha": np.linspace(-52.0,-56.0,3),
+              "beta": np.linspace(0.15,0.25,3),
               "r_max": np.linspace(0.1,0.3,3)}
 
     learn = get_default("learn")
     learn["eta"] = etas[p["h1"]]
 
     neuron = get_default("neuron")
-    neuron["phi"]["alpha"] = -52.0
+    neuron["phi"]["alpha"] = -54.0
     neuron["phi"]["beta"] = 0.25
     neuron["phi"]["r_max"] = 0.2
     neuron["phi"][p["vary"]] = varies[p["vary"]][p["ivary"]]
@@ -106,8 +106,8 @@ def vary((repetition_i,p)):
         'I_ext': lambda t: 0.0
         }
 
-    # 0.2 <= p <= 0.9
-    prob = 0.2 + 0.7*np.random.rand()
+    # 0.2 <= p <= 1.0
+    prob = 0.2 + 0.8*np.random.rand()
 
     seed = int(int(time.time()*1e8)%1e9)
     accs = [PeriodicAccumulator(['weights'], interval=10)]

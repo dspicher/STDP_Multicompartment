@@ -132,9 +132,9 @@ def vary((repetition_i,p)):
     seed = 1
     accs = [PeriodicAccumulator(['y','weights'], interval=10), BooleanAccumulator(['spike', 'dendr_spike', 'pre_spikes'])]
     if p["h1"]:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, neuron=neuron, learn=learn, h=1.0)
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, neuron=neuron, learn=learn, h=1.0)
     else:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-55.0), accs, seed=seed, neuron=neuron, learn=learn)
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, neuron=neuron, learn=learn)
 
     dump((accums, values),'bi_poo/'+p['ident'])
 
