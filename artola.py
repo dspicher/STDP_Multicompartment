@@ -18,7 +18,7 @@ IPython notebook will produce a figure showing experimental data and
 simulation results next to each other.
 """
 
-from util import get_all_save_keys, get_periodic_current, get_inst_backprop, get_phi_spiker, get_dendr_spike_det_dyn_ref
+from util import get_all_save_keys, get_periodic_current, get_inst_backprop, get_phi_spiker, get_dendr_spike_det
 from helper import do, PeriodicAccumulator, BooleanAccumulator, dump, get_default
 import numpy as np
 from IPython import embed
@@ -63,4 +63,44 @@ params["Uclamp"] = np.linspace(-40.0,0.0,9)
 
 file_prefix = 'artola_overfit'
 
-do(overfit, params, file_prefix, withmp=False, create_notebooks=False)
+#do(overfit, params, file_prefix, withmp=False, create_notebooks=False)
+
+
+def fit((repetition_i,p)):
+
+    neuron = get_default("neuron")
+    neuron["phi"]['alpha'] = p["alpha"]
+    neuron["phi"]['beta'] = p["beta"]
+    neuron["phi"]['r_max'] = p["r_max"]
+
+    learn = get_default("learn")
+    learn["eta"] = 4e-7
+
+    my_s = {
+        'start': 0.0,
+        'end': 1000.0,
+        'dt': 0.05,
+        'pre_spikes': [np.arange(50.0,1000.0,250.0)],
+        'I_ext': lambda t:0.0
+        }
+
+    seed = int(int(time.time()*1e8)%1e9)
+    accs = [PeriodicAccumulator(['weights'], interval=10)]
+    if p["h1"]:
+        accums = run(my_s, lambda **kwargs:False, get_dendr_spike_det(p["thresh"]), accs, seed=seed, neuron=neuron, learn=learn, voltage_clamp=True, U_clamp=p['Uclamp'], h=1.0)
+    else:
+        accums = run(my_s, lambda **kwargs:False, get_dendr_spike_det(p["thresh"]), accs, seed=seed, neuron=neuron, learn=learn, voltage_clamp=True, U_clamp=p['Uclamp'])
+
+    dump(accums,'artola/'+p['ident'])
+
+params = OrderedDict()
+params["alpha"] = [-50.0, -40.0, -30.0]
+params["beta"] = [0.1, 0.2]
+params["r_max"] = [0.1, 0.3]
+params["thresh"] = [-30.0, -40.0, -50.0]
+params["Uclamp"] = np.linspace(-40.0,0.0,5)
+params["h1"] = [False, True]
+
+file_prefix = 'artola_fit'
+
+do(fit, params, file_prefix, withmp=False, create_notebooks=True)
