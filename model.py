@@ -46,7 +46,7 @@ def urb_senn_rhs(y, t, t_post_spike, g_E_Ds, syn_pots_sums, I_ext, neuron, syn_c
     """
     computes the right hand side describing how the system of differential equations
     evolves in time, used for Euler integration
-    parameters
+    parameters:
     y -- the current state (see first line of code)
     t -- the current time
     t_post_spike -- time since last spike
@@ -55,11 +55,16 @@ def urb_senn_rhs(y, t, t_post_spike, g_E_Ds, syn_pots_sums, I_ext, neuron, syn_c
         see Eq. 5 and text thereafter
     I_ext -- current externally applied current (to the soma)
     neuron -- the dictionary containing neuron parameters
+    syn_cond_soma -- two functions inside a dict returning time-dependent somatic conductances
+        coming from synaptic input (with exc. and inh. reversal potentials)
     voltage_clamp -- a boolean indicating whether we clamp the somatic voltage or let it evolve
     p_backprop -- a probability p where we set the conductance soma -> dendrite to zero
         with probability (1-p)
+    returns:
+    the r.h.s. of the system of differential equations
     """
     (U, V, V_w_star) = tuple(y[:3])
+    dV_dws, dV_w_star_dws = y[3::2], y[4::2]
     dy = np.zeros(y.shape)
 
     # U derivative
@@ -78,9 +83,8 @@ def urb_senn_rhs(y, t, t_post_spike, g_E_Ds, syn_pots_sums, I_ext, neuron, syn_c
     # V_w_star derivative
     dy[2] = -neuron['g_L']*(V_w_star-neuron['E_L']) + neuron['g_D']*(V-V_w_star)
 
-    for i in range((y.shape[0]-3)/2):
-        dV_dw, dV_w_star_dw = y[3+2*i], y[3+2*i+1]
-        dy[3+2*i] = -(neuron['g_L']+neuron['g_S']+g_E_Ds[i])*dV_dw + neuron['g_S']*dV_w_star_dw + (neuron['E_E']-V)*syn_pots_sums[i]
-        dy[3+2*i+1] = -(neuron['g_L'] + neuron['g_D'])*dV_w_star_dw + neuron['g_D']*dV_dw
+    # partial derivatives w.r.t the synaptic weights
+    dy[3::2] = -(neuron['g_L']+neuron['g_S']+g_E_Ds)*dV_dws + neuron['g_S']*dV_w_star_dws + (neuron['E_E']-V)*syn_pots_sums
+    dy[4::2] = -(neuron['g_L'] + neuron['g_D'])*dV_w_star_dws + neuron['g_D']*dV_dws
 
     return dy
