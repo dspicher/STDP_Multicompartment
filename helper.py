@@ -92,7 +92,7 @@ def do(func, params, file_prefix, create_notebooks=True, **kwargs):
         nb_descriptors['simulation file'] = st[1][1]
         nb_descriptors['result files prefix'] = file_prefix
         param_counts = map(len,params.values())
-        nb_descriptors['# result files'] = '\*'.join(map(str,param_counts)) + ' = ' + str(reduce(lambda x,y:x*y,param_counts))
+        nb_descriptors['# result files'] = '\*'.join(map(str,param_counts)) + ' = ' + str(reduce(lambda x,y:x*y, param_counts, ""))
 
 
         create_analysis_notebook(nb_descriptors, params, base_str, "_pre")
@@ -125,6 +125,7 @@ def get_git_info():
 
 def create_analysis_notebook(nb_descriptors, ps, base_str, name_postfix=''):
     import IPython.nbformat as nbf
+    import os
 
     nb = nbf.v4.new_notebook()
 
@@ -188,6 +189,10 @@ def create_analysis_notebook(nb_descriptors, ps, base_str, name_postfix=''):
 
     sim_file = nb_descriptors['simulation file'][:-3]
     fname = sim_file + "_analysis" + name_postfix + ".ipynb"
+
+    if not os.path.exists(sim_file):
+        os.makedirs(sim_file)
+
     with open(sim_file + '/' + fname, 'w') as f:
         nbf.write(nb, f)
 
@@ -201,7 +206,7 @@ def construct_params(params, prefix=''):
     if prefix.endswith("_"):
         prefix = prefix[:-1]
 
-    base_str = prefix + reduce(add, ['_{0}_{{{1}}}'.format(ids[i],i) for i in range(len(ids))])
+    base_str = prefix + reduce(add, ['_{0}_{{{1}}}'.format(ids[i],i) for i in range(len(ids))], "")
 
     combinations = product(*values)
     concat_params = []
