@@ -73,18 +73,18 @@ def urb_senn_rhs(y, t, t_post_spike, g_E_Ds, syn_pots_sums, I_ext, neuron, syn_c
     else:
         dy[0] = -neuron['g_L']*(U - neuron['E_L']) - neuron['g_D']*(U - V) - syn_cond_soma['E'](t)*(U - neuron['E_E']) - syn_cond_soma['I'](t)*(U - neuron['E_I']) + I_ext
         if t_post_spike <= neuron['t_fall']:
-            dy[0] = dy[0] + get_spike_currents(U,t_post_spike, neuron)
+            dy[0] = dy[0] + get_spike_currents(U, t_post_spike, neuron)
 
     # V derivative
-    dy[1] = -neuron['g_L']*(V-neuron['E_L']) - np.sum(g_E_Ds)*(V-neuron['E_E'])
+    dy[1] = -neuron['g_L']*(V - neuron['E_L']) - np.sum(g_E_Ds)*(V - neuron['E_E'])
     if np.random.rand() <= p_backprop:
-        dy[1] += -neuron['g_S']*(V-U)
+        dy[1] += -neuron['g_S']*(V - U)
 
     # V_w_star derivative
-    dy[2] = -neuron['g_L']*(V_w_star-neuron['E_L']) + neuron['g_D']*(V-V_w_star)
+    dy[2] = -neuron['g_L']*(V_w_star - neuron['E_L']) - neuron['g_D']*(V_w_star - V)
 
     # partial derivatives w.r.t the synaptic weights
-    dy[3::2] = -(neuron['g_L']+neuron['g_S']+g_E_Ds)*dV_dws + neuron['g_S']*dV_w_star_dws + (neuron['E_E']-V)*syn_pots_sums
+    dy[3::2] = -(neuron['g_L'] + neuron['g_S'] + g_E_Ds) * dV_dws + neuron['g_S']*dV_w_star_dws + (neuron['E_E']-V)*syn_pots_sums
     dy[4::2] = -(neuron['g_L'] + neuron['g_D'])*dV_w_star_dws + neuron['g_D']*dV_dws
 
     return dy
