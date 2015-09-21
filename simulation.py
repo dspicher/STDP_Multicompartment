@@ -40,8 +40,11 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     if normalizer is None:
         normalizer = lambda weights: np.where(weights>0, weights, 0.0)
 
+
+    # set some default parameters
     voltage_clamp = kwargs.get('voltage_clamp', False)
     p_backprop = kwargs.get('p_backprop',1.0)
+    syn_cond_soma = sim.get('syn_cond_soma', {sym: lambda t: 0.0 for sym in ['E', 'I']})
 
     I_ext = sim.get('I_ext', step_current(np.array([[sim['start'],0.0]])))
 
@@ -116,7 +119,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
 
         # advance state: integrate from curr['t'] to curr['t']+dt
         curr_I = I_ext(curr['t'])
-        args=(curr['y'],curr['t'],curr['t']-last_spike['t'], g_E_Ds, syn_pots_sums, curr_I, neuron, voltage_clamp, p_backprop)
+        args=(curr['y'],curr['t'],curr['t']-last_spike['t'], g_E_Ds, syn_pots_sums, curr_I, neuron, syn_cond_soma, voltage_clamp, p_backprop)
         curr['y'] += dt*urb_senn_rhs(*args)
         curr['t'] += dt
 

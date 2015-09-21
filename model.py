@@ -42,7 +42,7 @@ def phi_prime(U, neuron):
     denom = (np.exp(U*phi_params["beta"]) + np.exp(phi_params["alpha"]*phi_params["beta"]))**2
     return num/denom
 
-def urb_senn_rhs(y, t, t_post_spike, g_E_Ds, syn_pots_sums, I_ext, neuron, voltage_clamp, p_backprop):
+def urb_senn_rhs(y, t, t_post_spike, g_E_Ds, syn_pots_sums, I_ext, neuron, syn_cond_soma, voltage_clamp, p_backprop):
     """
     computes the right hand side describing how the system of differential equations
     evolves in time, used for Euler integration
@@ -66,7 +66,7 @@ def urb_senn_rhs(y, t, t_post_spike, g_E_Ds, syn_pots_sums, I_ext, neuron, volta
     if voltage_clamp:
         dy[0] = 0.0
     else:
-        dy[0] = -neuron['g_L']*(U-neuron['E_L']) + neuron['g_D']*(V-U) + I_ext
+        dy[0] = -neuron['g_L']*(U - neuron['E_L']) - neuron['g_D']*(U - V) - syn_cond_soma['E'](t)*(U - neuron['E_E']) - syn_cond_soma['I'](t)*(U - neuron['E_I']) + I_ext
         if t_post_spike <= neuron['t_fall']:
             dy[0] = dy[0] + get_spike_currents(U,t_post_spike, neuron)
 
