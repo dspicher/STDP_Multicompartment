@@ -70,6 +70,18 @@ def get_dendr_spike_det_dyn_ref(thresh, tau_ref_0, theta_0):
             return False
     return dendr_spike_det_dyn_ref
 
+def get_phi_U_learner(neuron, dt):
+    """
+    returns a dendritic learning signal that has full access to the somatic voltage
+        and rate-function phi
+    i.e. the average version of inst_backprop if somatic spikes are initiated
+        based on an inhomogenuous poisson process with rate phi
+    """
+    def phi_U_learner(curr, **kwargs):
+        return phi(curr['y'][0], neuron) * dt
+    return phi_U_learner
+
+
 def step_current(steps):
     """
     defines a step current, i.e. an externally applied current defined by step

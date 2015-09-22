@@ -110,10 +110,10 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
         h = kwargs.get('h', phi_prime(curr['y'][2], neuron)/phi(curr['y'][2], neuron))
 
         # update weights
-        PIVs = (neuron['delta_factor']*float(dendr_spike)/dt - dendr_pred)*h*curr['y'][4::2]
         pos_PIVs = neuron['delta_factor']*float(dendr_spike)/dt*h*curr['y'][4::2]
-        neg_PIVs = -dendr_pred*h*curr['y'][4::2]
-        deltas += dt*(PIVs-deltas)/learn['tau_delta']
+        neg_PIVs = dendr_pred*h*curr['y'][4::2]
+        PIVs = pos_PIVs - neg_PIVs
+        deltas += dt*(PIVs - deltas)/learn['tau_delta']
         weight_updates = learn['eta']*deltas
         weights = normalizer(weights + weight_updates)
 
