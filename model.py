@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def get_spike_currents(U, t_post_spike, neuron):
     """
     this function implements our simplified action potential currents (Eq. 3)
@@ -15,10 +16,11 @@ def get_spike_currents(U, t_post_spike, neuron):
     """
     current = 0.0
     if 0.0 <= t_post_spike < neuron['t_rise']:
-        current += -neuron['g_Na']*(U - neuron['E_Na'])
+        current += -neuron['g_Na'] * (U - neuron['E_Na'])
     if neuron['t_rise'] <= t_post_spike < neuron['t_fall']:
-        current += -neuron['g_K']*(U - neuron['E_K'])
+        current += -neuron['g_K'] * (U - neuron['E_K'])
     return current
+
 
 def phi(U, neuron):
     """
@@ -31,16 +33,19 @@ def phi(U, neuron):
     firing rate
     """
     phi_params = neuron['phi']
-    return phi_params['r_max']/(1+np.exp(-phi_params['beta']*(U-phi_params['alpha'])))
+    return phi_params['r_max'] / (1 + np.exp(-phi_params['beta'] * (U - phi_params['alpha'])))
+
 
 def phi_prime(U, neuron):
     """
     computes the first derivative of the sigmoidal firing rate function
     """
     phi_params = neuron['phi']
-    num = np.exp((U+phi_params["alpha"])*phi_params["beta"])*phi_params["r_max"]*phi_params["beta"]
-    denom = (np.exp(U*phi_params["beta"]) + np.exp(phi_params["alpha"]*phi_params["beta"]))**2
-    return num/denom
+    num = np.exp((U + phi_params["alpha"]) * phi_params["beta"]) * \
+        phi_params["r_max"] * phi_params["beta"]
+    denom = (np.exp(U * phi_params["beta"]) + np.exp(phi_params["alpha"] * phi_params["beta"]))**2
+    return num / denom
+
 
 def urb_senn_rhs(y, t, t_post_spike, g_E_Ds, syn_pots_sums, I_ext, neuron, syn_cond_soma, voltage_clamp, p_backprop):
     """
@@ -71,20 +76,22 @@ def urb_senn_rhs(y, t, t_post_spike, g_E_Ds, syn_pots_sums, I_ext, neuron, syn_c
     if voltage_clamp:
         dy[0] = 0.0
     else:
-        dy[0] = -neuron['g_L']*(U - neuron['E_L']) - neuron['g_D']*(U - V) - syn_cond_soma['E'](t)*(U - neuron['E_E']) - syn_cond_soma['I'](t)*(U - neuron['E_I']) + I_ext
+        dy[0] = -neuron['g_L'] * (U - neuron['E_L']) - neuron['g_D'] * (U - V) - syn_cond_soma['E'](
+            t) * (U - neuron['E_E']) - syn_cond_soma['I'](t) * (U - neuron['E_I']) + I_ext
         if t_post_spike <= neuron['t_fall']:
             dy[0] = dy[0] + get_spike_currents(U, t_post_spike, neuron)
 
     # V derivative
-    dy[1] = -neuron['g_L']*(V - neuron['E_L']) - np.sum(g_E_Ds)*(V - neuron['E_E'])
+    dy[1] = -neuron['g_L'] * (V - neuron['E_L']) - np.sum(g_E_Ds) * (V - neuron['E_E'])
     if np.random.rand() <= p_backprop:
-        dy[1] += -neuron['g_S']*(V - U)
+        dy[1] += -neuron['g_S'] * (V - U)
 
     # V_w_star derivative
-    dy[2] = -neuron['g_L']*(V_w_star - neuron['E_L']) - neuron['g_D']*(V_w_star - V)
+    dy[2] = -neuron['g_L'] * (V_w_star - neuron['E_L']) - neuron['g_D'] * (V_w_star - V)
 
     # partial derivatives w.r.t the synaptic weights
-    dy[3::2] = -(neuron['g_L'] + neuron['g_S'] + g_E_Ds) * dV_dws + neuron['g_S']*dV_w_star_dws + (neuron['E_E']-V)*syn_pots_sums
-    dy[4::2] = -(neuron['g_L'] + neuron['g_D'])*dV_w_star_dws + neuron['g_D']*dV_dws
+    dy[3::2] = -(neuron['g_L'] + neuron['g_S'] + g_E_Ds) * dV_dws + \
+        neuron['g_S'] * dV_w_star_dws + (neuron['E_E'] - V) * syn_pots_sums
+    dy[4::2] = -(neuron['g_L'] + neuron['g_D']) * dV_w_star_dws + neuron['g_D'] * dV_dws
 
     return dy
