@@ -61,8 +61,6 @@ def task((repetition_i, p)):
     for train in poisson_spikes:
         train.sort()
 
-    embed()
-
     my_s = {
         'start': 0.0,
         'end': t_end,
