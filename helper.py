@@ -32,13 +32,15 @@ class PeriodicAccumulator:
 
     def _get_size(self, key):
         if key == 'y':
+            if self.y_keep is not None:
+                return self.y_keep
             return 3 + 2 * self.n_syn
         elif key in ['g_E_Ds', 'syn_pots_sums', 'PIVs', 'pos_PIVs', 'neg_PIVs', 'weights', 'weight_updates', 'deltas', 'pre_spikes']:
             return self.n_syn
         else:
             return 1
 
-    def __init__(self, keys, interval=1, init_size=1024):
+    def __init__(self, keys, interval=1, init_size=1024, y_keep=None):
         self.keys = keys
         self.init_size = init_size
         self.i = interval
@@ -46,6 +48,7 @@ class PeriodicAccumulator:
         self.size = init_size
         self.interval = interval
         self.t = np.zeros(init_size, np.float32)
+        self.y_keep = y_keep
 
     def prepare_arrays(self, n_syn=1):
         self.n_syn = n_syn
@@ -63,7 +66,10 @@ class PeriodicAccumulator:
                 self.size = self.size * 2
 
             for key in self.keys:
-                self.res[key][self.j, :] = np.atleast_2d(vals[key])
+                if key == 'y' and self.y_keep is not None:
+                    self.res[key][self.j, :] = np.atleast_2d(vals[key][:self.y_keep])
+                else:
+                    self.res[key][self.j, :] = np.atleast_2d(vals[key])
             self.t[self.j] = curr_t
 
             self.j += 1
