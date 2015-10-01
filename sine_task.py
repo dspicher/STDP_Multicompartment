@@ -46,11 +46,7 @@ def task((repetition_i, p)):
             return 0.0
         else:
             return 8e-2 * p["g_factor"]
-
-    rhythmic_spikes = [np.arange(1.0 * i / n_syn * cycle_dur, t_end, cycle_dur)
-                       for i in range(n_syn)]
-
-
+            
     dt = 0.05
     f_r = 0.01  # 10Hz
     t_pts = np.arange(0, t_end / cycles, dt)
