@@ -137,7 +137,7 @@ def get_git_info():
 
 
 def create_analysis_notebook(nb_descriptors, ps, base_str, name_postfix=''):
-    import IPython.nbformat as nbf
+    import nbformat as nbf
     import os
 
     nb = nbf.v4.new_notebook()
@@ -172,7 +172,7 @@ def create_analysis_notebook(nb_descriptors, ps, base_str, name_postfix=''):
     cells.append(nbf.v4.new_code_cell(pickler_cell_str))
 
     cells.append(nbf.v4.new_code_cell(
-        "from IPython.html.widgets import interact, interactive, fixed\nfrom IPython.html import widgets\nfrom IPython.display import clear_output, display, HTML"))
+        "from ipywidgets import interact, ToggleButtons"))
 
     interact = ""
     interact += "def show_plot(key," + ", ".join(ps.keys()) + ",y_c,t_min,t_max):\n"
