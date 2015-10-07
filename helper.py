@@ -152,7 +152,10 @@ def create_analysis_notebook(nb_descriptors, ps, base_str, name_postfix=''):
     cells.append(nbf.v4.new_markdown_cell(md_cell))
 
     cells.append(nbf.v4.new_code_cell(
-        "%pylab inline\nimport cPickle\nfrom helper import PeriodicAccumulator, BooleanAccumulator\nfrom itertools import product"))
+    "import os,sys,inspect\ncurrentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))\nparentdir = os.path.dirname(currentdir)\nsys.path.insert(0,parentdir)"))
+
+    cells.append(nbf.v4.new_code_cell(
+        "%pylab inline\nimport cPickle\nfrom helper import PeriodicAccumulator, BooleanAccumulator\nfrom itertools import product\nplt.style.use('ggplot')"))
 
     pickler_cell_str = ""
     pickler_cell_str += "def get(" + ", ".join(ps.keys()) + "):\n"
@@ -189,7 +192,7 @@ def create_analysis_notebook(nb_descriptors, ps, base_str, name_postfix=''):
     interact = ""
     interact += "ts = data[params[0]][0].t\n"
     interact += "i = interact(show_plot,\n"
-    interact += "key=widgets.ToggleButtons(description='key',options=['dendr_pred','weights','weight_updates', 'PIVs', 'y','h']),\n"
+    interact += "key=ToggleButtons(description='key',options=['dendr_pred','weights','weight_updates', 'PIVs', 'y','h']),\n"
     interact += "t_min=(0,int(np.round(ts[-1]))),\n"
     interact += "t_max=(0,int(np.round(ts[-1]))),\n"
     for name, vals in ps.items():
@@ -197,8 +200,8 @@ def create_analysis_notebook(nb_descriptors, ps, base_str, name_postfix=''):
         if rep[:6] == "array(":
             rep = rep[6:-1]
         interact += name + \
-            "=widgets.ToggleButtons(description=\'" + name + "\',options=" + name + "_s" + "),\n"
-    interact += "y_c=widgets.ToggleButtons(description='y_c',options=[str(a) for a in range(5)]))\n"
+            "=ToggleButtons(description=\'" + name + "\',options=" + name + "_s" + "),\n"
+    interact += "y_c=ToggleButtons(description='y_c',options=[str(a) for a in range(5)]))\n"
     cells.append(nbf.v4.new_code_cell(interact))
 
     nb['cells'] = cells
