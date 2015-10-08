@@ -78,7 +78,7 @@ def get_dendr_spike_det_dyn_ref(thresh, tau_ref_0, theta_0):
     return dendr_spike_det_dyn_ref
 
 
-def get_phi_U_learner(neuron, dt):
+def get_phi_U_learner(neuron, dt, factor=1.0):
     """
     returns a dendritic learning signal that has full access to the somatic voltage
         and rate-function phi
@@ -86,7 +86,7 @@ def get_phi_U_learner(neuron, dt):
         based on an inhomogenuous poisson process with rate phi
     """
     def phi_U_learner(curr, **kwargs):
-        return phi(curr['y'][0], neuron) * dt
+        return factor * phi(curr['y'][0], neuron) * dt
     return phi_U_learner
 
 
