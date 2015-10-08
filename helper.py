@@ -181,16 +181,18 @@ def create_analysis_notebook(nb_descriptors, ps, base_str, name_postfix=''):
     interact += "def show_plot(key," + ", ".join(ps.keys()) + ",y_c,t_min,t_max):\n"
     interact += "    figure(figsize=(12,5))\n"
     interact += "    p = (" + ", ".join(ps.keys()) + ")\n"
-    interact += "    ts = data[p][0].t\n"
+    interact += "    curr = data[p][1][0]"
+    interact += "    ts = curr.t\n"
     interact += "    mask = np.logical_and(ts>=t_min,ts<=t_max)\n"
     interact += "    if key=='y':\n"
-    interact += "        plot(data[p][0].t[mask],data[p][0].res[key][mask,y_c])\n"
+    interact += "        plot(curr.t[mask],curr.res[key][mask,:int(y_c)+1])\n"
     interact += "    else:\n"
-    interact += "        plot(data[p][0].t[mask],data[p][0].res[key][mask])\n"
+    interact += "        plot(curr.t[mask],curr.res[key][mask])\n"
     cells.append(nbf.v4.new_code_cell(interact))
 
+
     interact = ""
-    interact += "ts = data[params[0]][0].t\n"
+    interact += "ts = data[params[0]][1][0].t\n"
     interact += "i = interact(show_plot,\n"
     interact += "key=ToggleButtons(description='key',options=['dendr_pred','weights','weight_updates', 'PIVs', 'y','h']),\n"
     interact += "t_min=(0,int(np.round(ts[-1]))),\n"
