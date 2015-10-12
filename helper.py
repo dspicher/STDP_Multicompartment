@@ -181,7 +181,7 @@ def create_analysis_notebook(nb_descriptors, ps, base_str, name_postfix=''):
     interact += "def show_plot(key," + ", ".join(ps.keys()) + ",y_c,t_min,t_max):\n"
     interact += "    figure(figsize=(12,5))\n"
     interact += "    p = (" + ", ".join(ps.keys()) + ")\n"
-    interact += "    curr = data[p][1][0]"
+    interact += "    curr = data[p][1][0]\n"
     interact += "    ts = curr.t\n"
     interact += "    mask = np.logical_and(ts>=t_min,ts<=t_max)\n"
     interact += "    if key=='y':\n"
