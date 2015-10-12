@@ -47,6 +47,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
     voltage_clamp = kwargs.get('voltage_clamp', False)
     p_backprop = kwargs.get('p_backprop', 1.0)
     syn_cond_soma = sim.get('syn_cond_soma', {sym: lambda t: 0.0 for sym in ['E', 'I']})
+    dendr_predictor = kwargs.get('dendr_predictor', phi)
 
     I_ext = sim.get('I_ext', step_current(np.array([[sim['start'], 0.0]])))
 
@@ -110,7 +111,7 @@ def run(sim, spiker, spiker_dendr, accumulators, neuron=None, learn=None, normal
             last_spike_dendr = {'t': curr['t'], 'y': curr['y']}
 
         # dendritic prediction
-        dendr_pred = phi(curr['y'][2], neuron)
+        dendr_pred = dendr_predictor(curr['y'][2], neuron)
         h = kwargs.get('h', phi_prime(curr['y'][2], neuron) / phi(curr['y'][2], neuron))
 
         # update weights
