@@ -46,7 +46,7 @@ def task((repetition_i, p)):
             return 0.0
         else:
             return 8e-2 * p["g_factor"]
-            
+
     dt = 0.05
     f_r = 0.01  # 10Hz
     t_pts = np.arange(0, t_end / cycles, dt)
@@ -74,9 +74,9 @@ def task((repetition_i, p)):
     dump((seed, accums), 'sine_task/' + p['ident'])
 
 params = OrderedDict()
-params["n_syn"] = [100, 200]
+params["n_syn"] = [50, 100]
 params["g_factor"] = [10]
-params["cycle_dur"] = [100, 200]
+params["cycle_dur"] = [100]
 params["g_S"] = [0.0, 0.5]
 params["alpha"] = [-50.0, -55.0]
 params["beta"] = [0.2, 0.25]
