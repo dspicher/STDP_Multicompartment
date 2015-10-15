@@ -35,7 +35,7 @@ class PeriodicAccumulator:
             if self.y_keep is not None:
                 return self.y_keep
             return 3 + 2 * self.n_syn
-        elif key in ['g_E_Ds', 'syn_pots_sums', 'PIVs', 'pos_PIVs', 'neg_PIVs', 'weights', 'weight_updates', 'deltas', 'pre_spikes']:
+        elif key in ['g_E_Ds', 'syn_pots_sums', 'PIVs', 'pos_PIVs', 'neg_PIVs', 'weights', 'weight_updates', 'deltas', 'pre_spikes', 'dendr_pred']:
             return self.n_syn
         else:
             return 1
