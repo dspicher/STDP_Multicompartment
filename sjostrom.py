@@ -20,47 +20,53 @@ IPython notebook will produce a figure showing experimental data and
 simulation results next to each other.
 """
 
-from util import get_all_save_keys, get_periodic_current, get_inst_backprop, get_fixed_spiker, get_dendr_spike_det
-from helper import do, PeriodicAccumulator, BooleanAccumulator, dump, get_default
+import cPickle
+import time
+from collections import OrderedDict
+
+import matplotlib.pyplot as plt
 import numpy as np
 from IPython import embed
-import cPickle
-from collections import OrderedDict
+
+from helper import (BooleanAccumulator, PeriodicAccumulator, do, dump,
+                    get_default)
 from simulation import run
-import matplotlib.pyplot as plt
-import time
+from util import (get_all_save_keys, get_dendr_spike_det, get_fixed_spiker,
+                  get_inst_backprop, get_periodic_current)
 
 
-def vary((repetition_i,p)):
-
-    vary = {"alpha":(-2.0,2.0),
-              "beta":(-0.1,0.2),
-              "r_max":(-0.05,0.15)}
+def fit((repetition_i, p)):
 
     learn = get_default("learn")
     if p["h1"]:
-        learn['eta'] *= 0.125*p["l_f"]
+        learn['eta'] *= 0.125 / 8.0
     else:
-        learn["eta"] *= 0.8*p["l_f"]
-    learn["eps"] *= p["l_f"]
-
-    n_spikes = 5.0
+        learn["eta"] *= 0.1
 
     neuron = get_default("neuron")
     neuron["phi"]['r_max'] = 0.2
     neuron["phi"]['alpha'] = -54.0
-    neuron["phi"]['beta'] = 0.2
-    
-    neuron["phi"][p["vary"]] += np.linspace(vary[p["vary"]][0], vary[p["vary"]][1], 5)[p["i"]]
+    neuron["phi"]['beta'] = 0.25
+
+    p_backprop = 0.75
 
     freq = p["freq"]
     delta = p["delta"]
 
-    first_spike = 1000.0/(2*freq)
-    isi = 1000.0/freq
-    t_end = 1000.0*n_spikes/freq
+    n_spikes_in_burst = 10
+    burst_pause = 200.0
+    bursts = 50 / n_spikes_in_burst
+    burst_dur = 1000.0 * n_spikes_in_burst / freq
 
-    spikes = np.arange(first_spike, t_end, isi)
+    first_spike = 1000.0 / (2 * freq)
+    isi = 1000.0 / freq
+    t_end = bursts * (burst_dur + burst_pause)
+
+    spikes_in_burst = np.arange(first_spike, burst_dur, isi)
+    spikes = np.array([])
+    for i in range(bursts):
+        spikes = np.concatenate((spikes, spikes_in_burst + i * (burst_dur + burst_pause)))
+
     pre_spikes = spikes + delta
 
     my_s = {
@@ -69,106 +75,72 @@ def vary((repetition_i,p)):
         'dt': 0.05,
         'pre_spikes': [pre_spikes],
         'I_ext': lambda t: 0.0
-        }
+    }
 
-    seed = int(int(time.time()*1e8)%1e9)
+    seed = int(int(time.time() * 1e8) % 1e9)
     accs = [PeriodicAccumulator(['weights'], interval=100)]
     if p["h1"]:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron, h=1.0)
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs,
+                     seed=seed, learn=learn, neuron=neuron, h=1.0, p_backprop=p_backprop)
     else:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron)
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs,
+                     seed=seed, learn=learn, neuron=neuron, p_backprop=p_backprop)
 
-    dump(accums,'sjostrom/'+p['ident'])
-
-params = OrderedDict()
-params["vary"] = ["alpha", "beta", "r_max"]
-params["h1"] = [False, True]
-params["l_f"] = [1.0,10.0]
-params["freq"] = np.array([1.0,10.0,20.0,40.0,50.0])
-params["delta"] = np.array([-10.0,10.0])
-params["i"] = range(5)
-
-
-file_prefix = 'sjostrom_vary'
-
-do(vary, params, file_prefix, withmp=True)
-
-def fit((repetition_i,p)):
-
-    learn = get_default("learn")
-    if p["h1"]:
-        learn['eta'] *= 0.125
-    else:
-        learn["eta"] *= 0.8
-
-    n_spikes = 5.0
-
-    neuron = get_default("neuron")
-    neuron["phi"]['r_max'] = 0.2
-    neuron["phi"]['alpha'] = -54.0
-    neuron["phi"]['beta'] = 0.2
-
-    freq = p["freq"]
-    delta = p["delta"]
-
-    first_spike = 1000.0/(2*freq)
-    isi = 1000.0/freq
-    t_end = 1000.0*n_spikes/freq
-
-    spikes = np.arange(first_spike, t_end, isi)
-    pre_spikes = spikes + delta
-
-    my_s = {
-        'start': 0.0,
-        'end': t_end,
-        'dt': 0.05,
-        'pre_spikes': [pre_spikes],
-        'I_ext': lambda t: 0.0
-        }
-
-    seed = int(int(time.time()*1e8)%1e9)
-    accs = [PeriodicAccumulator(['weights'], interval=100)]
-    if p["h1"]:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron, h=1.0)
-    else:
-        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron)
-
-    dump(accums,'sjostrom/'+p['ident'])
+    dump(accums, 'sjostrom/' + p['ident'])
 
 params = OrderedDict()
 params["h1"] = [False, True]
-params["freq"] = np.array([1.0,10.0,20.0,40.0,50.0])
-params["delta"] = np.array([-10.0,10.0])
+params["freq"] = np.array([1.0, 5.0, 10.0, 20.0, 40.0, 50.0])
+params["delta"] = np.array([-10.0, 10.0])
+params["j"] = range(50)
 
 
 file_prefix = 'sjostrom_fit'
 
 do(fit, params, file_prefix, withmp=True)
 
+def vary((repetition_i, p)):
 
-def overfit((repetition_i,p)):
+    vary = {"alpha": (-2.0, 2.0),
+            "beta": (-0.1, 0.1),
+            "r_max": (-0.1, 0.1),
+            "p_backprop": (-5, 5)}
 
-    learn = {}
-    learn['eta'] = 8e-7
-    learn['eps'] = 1e-3
-    learn['tau_delta'] = 2.0
-
-    n_spikes = 5.0
+    learn = get_default("learn")
+    if p["h1"]:
+        learn['eta'] *= 0.125 / 8.0
+    else:
+        learn["eta"] *= 0.1
 
     neuron = get_default("neuron")
-    neuron["phi"]['r_max'] = 0.071
+    neuron["phi"]['r_max'] = 0.2
     neuron["phi"]['alpha'] = -54.0
-    neuron["phi"]['beta'] = 0.1
-    neuron["g_L"] = 0.03
+    neuron["phi"]['beta'] = 0.25
+
+    p_backprop = 0.75
+
+    if p["vary"] in ['alpha', 'beta', 'r_max']:
+        neuron["phi"][p["vary"]] += np.linspace(vary[p["vary"]][0], vary[p["vary"]][1], 5)[p["i"]]
+    else:
+        p_backprop += np.linspace(vary[p["vary"]][0], vary[p["vary"]][1], 5)[p["i"]]
 
     freq = p["freq"]
     delta = p["delta"]
 
-    first_spike = 1000.0/(2*freq)
-    isi = 1000.0/freq
-    t_end = 1000.0*n_spikes/freq
+    n_spikes_in_burst = 10
+    burst_pause = 200.0
+    bursts = 50 / n_spikes_in_burst
+    burst_dur = 1000.0 * n_spikes_in_burst / freq
 
-    spikes = np.arange(first_spike, t_end, isi)
+    first_spike = 1000.0 / (2 * freq)
+    isi = 1000.0 / freq
+    t_end = bursts * (burst_dur + burst_pause)
+
+    spikes_in_burst = np.arange(first_spike, burst_dur, isi)
+    spikes = np.array([])
+    for i in range(bursts):
+        spikes = np.concatenate((spikes, spikes_in_burst + i * (burst_dur + burst_pause)))
+
     pre_spikes = spikes + delta
 
     my_s = {
@@ -177,20 +149,28 @@ def overfit((repetition_i,p)):
         'dt': 0.05,
         'pre_spikes': [pre_spikes],
         'I_ext': lambda t: 0.0
-        }
+    }
 
-    seed = int(int(time.time()*1e8)%1e9)
+    seed = int(int(time.time() * 1e8) % 1e9)
     accs = [PeriodicAccumulator(['weights'], interval=100)]
-    accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs, seed=seed, learn=learn, neuron=neuron)
+    if p["h1"]:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs,
+                     seed=seed, learn=learn, neuron=neuron, h=1.0, p_backprop=p_backprop)
+    else:
+        accums = run(my_s, get_fixed_spiker(spikes), get_dendr_spike_det(-50.0), accs,
+                     seed=seed, learn=learn, neuron=neuron, p_backprop=p_backprop)
 
-    dump(accums,'sjostrom/'+p['ident'])
-
+    dump(accums, 'sjostrom/' + p['ident'])
 
 params = OrderedDict()
-params["freq"] = np.array([1.0,10.0,20.0,40.0,50.0])
-params["delta"] = np.array([-10.0,10.0])
+params["vary"] = ["alpha", "beta", "r_max", "p_backprop"]
+params["h1"] = [False, True]
+params["freq"] = np.array([1.0, 5.0, 10.0, 20.0, 40.0, 50.0])
+params["delta"] = np.array([-10.0, 10.0])
+params["i"] = range(5)
+params["j"] = range(20)
 
 
-file_prefix = 'sjostrom_overfit'
+file_prefix = 'sjostrom_vary'
 
-do(overfit, params, file_prefix, withmp=True, create_notebooks=True)
+do(vary, params, file_prefix, withmp=True)
