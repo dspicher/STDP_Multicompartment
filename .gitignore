@@ -2,3 +2,5 @@
 ign*
 *.p
 *checkpoints*
+*.pdf
+*.png
